@@ -32,7 +32,7 @@
       <router-view></router-view>
     </v-content>
     <v-footer color="indigo" app>
-      <span class="white--text">&copy; 2017</span>
+      <span class="white--text ml-3"><a href='https://steemit.com/@anpigon' class="white--text">@anpigon</a> &copy; 2018</span>
     </v-footer>
   </v-app>
 </template>
@@ -40,7 +40,7 @@
 <script>
   export default {
     data: () => ({
-      drawer: null
+      drawer: false
     }),
     props: {
       source: String
