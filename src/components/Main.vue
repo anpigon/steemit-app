@@ -26,7 +26,7 @@
                 height="200px">
               </v-card-media>
               <v-list three-line>
-                <v-list-tile>
+                <v-list-tile :to="['detail', d.author, d.permlink].join('/')">
                   <v-list-tile-content>
                     <v-list-tile-title>{{ d.title }}</v-list-tile-title>
                     <v-list-tile-sub-title class='ellipsis'>{{ d.body }}</v-list-tile-sub-title>
