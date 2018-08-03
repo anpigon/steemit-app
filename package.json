@@ -17,6 +17,7 @@
     "remarkable": "^1.7.1",
     "steem": "^0.7.1",
     "vue": "^2.5.2",
+    "vue-infinite-scroll": "^2.0.2",
     "vue-router": "^3.0.1",
     "vuetify": "^1.1.8"
   },
