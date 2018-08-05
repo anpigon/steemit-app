@@ -1,28 +1,34 @@
 <template>
 <v-container fill-height fluid grid-list-md>
   <v-layout>
-    <v-flex xs12 md9 offset-md3> 
+    <v-flex xs12 md8 offset-md2> 
       <v-card>
         <v-card-title class="headline pb-0">
-          스팀잇(Steemit)기반 앱 만들기 #2 - 최근글 가져오기
+          {{ title }}
         </v-card-title>
-        <v-list class='pt-0'>
-          <v-list-tile avatar>
-            <v-list-tile-avatar size="64" >
-            <img :src="'https://steemitimages.com/u/anpigon/avatar'" alt="avatar">
-            </v-list-tile-avatar>
-            <v-list-tile-content>
-              <v-list-tile-title>anpigon (55)</v-list-tile-title>
-              <v-list-tile-sub-title>1분전 · kr</v-list-tile-sub-title>
-            </v-list-tile-content>
-          </v-list-tile>
-        </v-list>
+        <v-layout>
+          <v-flex xs6>
+            <v-list class='pt-0'>
+              <v-list-tile avatar>
+                <v-list-tile-avatar>
+                <img :src="'https://steemitimages.com/u/' + author + '/avatar'" alt="avatar">
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>{{ author }} ({{author_reputation}})</v-list-tile-title>
+                  <v-list-tile-sub-title>{{created}}분전 · {{category}}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list>
+          </v-flex>
+          <v-flex text-xs-right class='pr-4 pt-3'>
+            <div>좋아요 {{ net_votes }}명 · 댓글 {{ children }}명</div>
+            <strong>${{ payout_value }}</strong>
+          </v-flex>
+        </v-layout>
         <v-divider></v-divider>
         <v-card-text>
           <div>
-            <p>이번 시간에는 스팀잇에 등록된 글을 가져와서 출력하는 화면을 구현하겠습니다.<br>
-            저도 학습하면서 구현하는 중이기 때문에 설명이 부족할 수 있습니다.<br>
-            양해부탁드립니다.</p>
+            <p>{{ body }}</p>
           </div>
         </v-card-text>
       </v-card>
@@ -36,7 +42,15 @@ import steem from 'steem'
 export default {
   data () {
     return {
-      content: []
+      title: '',
+      body: '',
+      author: '',
+      author_reputation: 0,
+      category: '',
+      children: 0,
+      net_votes: 0,
+      created: '',
+      payout_value: ''
     }
   },
   // computed: {
@@ -44,11 +58,26 @@ export default {
   //     return this.$route.params.author
   //   }
   // },
+  deactivated () {
+    this.$destroy()
+  },
   beforeCreate () {
     const author = this.$route.params.author
     const permlink = this.$route.params.permlink
     steem.api.getContentAsync(author, permlink)
-      .then(result => console.log(result))
+      .then(r => {
+        console.log(r)
+        this.title = r.title
+        this.body = r.body
+        this.category = r.category
+        this.children = r.children
+        this.net_votes = r.net_votes
+        this.author = r.author
+        this.created = r.created
+        this.author_reputation = r.author_reputation
+        this.payout_value = 0
+      })
+      .catch(e => console.log(e))
   }
 }
 </script>
