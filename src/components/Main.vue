@@ -17,7 +17,7 @@
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                       <v-list-tile-title>{{ d.author }} ({{ d.author_reputation }})</v-list-tile-title>
-                      <v-list-tile-sub-title>{{ d.created }} · {{ d.category }}</v-list-tile-sub-title>
+                      <v-list-tile-sub-title>{{ d.created | filterCreated }} · {{ d.category }}</v-list-tile-sub-title>
                     </v-list-tile-content>
                   </v-list-tile>
                 </v-list>
@@ -118,22 +118,7 @@ export default {
 
             item.author_reputation = steem.formatter.reputation(item.author_reputation) // 저자 명성
 
-            const now = new Date()
-            const created = new Date(item.created + 'Z')
-            const elapsedSeconds = (now - created) / 1000 // 경과 시간(초)
-            if (elapsedSeconds < 60) {
-              item.created = Math.round(elapsedSeconds) + '초 전'
-            } else if (elapsedSeconds < 360) {
-              item.created = Math.round(elapsedSeconds / 60) + '분 전'
-            } else if (elapsedSeconds < 8640) {
-              item.created = Math.round(elapsedSeconds / 60) + '시간 전'
-            } else if (elapsedSeconds < 207360) {
-              item.created = '어제'
-            } else {
-              item.created = (now.getFullYear() !== created.getFullYear() ? created.getFullYear() + '년 ' : '') +
-                                      (created.getMonth() + 1) + '월 ' +
-                                      created.getDate() + '일'
-            }
+            item.created = item.created
 
             item.body = md.render(item.body).replace(/<\/?[^>]+(>|$)/g, '')
 
