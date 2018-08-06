@@ -23,7 +23,7 @@
                 </v-list>
                 <v-card-media
                   v-if="d.image"
-                  :src="d.image"
+                  :src="'https://steemitimages.com/640x480/' + d.image"
                   height="200px">
                 </v-card-media>
                 <v-list three-line>
