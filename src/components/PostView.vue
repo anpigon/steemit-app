@@ -15,7 +15,7 @@
                 </v-list-tile-avatar>
                 <v-list-tile-content>
                   <v-list-tile-title>{{ author }} ({{author_reputation}})</v-list-tile-title>
-                  <v-list-tile-sub-title>{{created}}분전 · {{category}}</v-list-tile-sub-title>
+                  <v-list-tile-sub-title>{{created | filterCreated}} · {{category}}</v-list-tile-sub-title>
                 </v-list-tile-content>
               </v-list-tile>
             </v-list>
@@ -62,8 +62,9 @@ export default {
     this.$destroy()
   },
   beforeCreate () {
-    const author = this.$route.params.author
-    const permlink = this.$route.params.permlink
+    const author = this.$route.params.author // path의 author 파람값
+    const permlink = this.$route.params.permlink // path의 permlink 파람값
+
     steem.api.getContentAsync(author, permlink)
       .then(r => {
         console.log(r)
