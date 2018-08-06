@@ -1,7 +1,10 @@
 <template>
 <v-container fill-height fluid grid-list-md>
-  <v-layout>
-    <v-flex xs12 md8 offset-md2> 
+  <v-layout v-if="loading" align-center justify-center>
+    <v-progress-circular size="50" color="primary" indeterminate></v-progress-circular>
+  </v-layout>
+  <v-layout v-if="!loading">
+    <v-flex xs12 md8 offset-md2>
       <v-card>
         <v-card-title class="headline pb-0">
           {{ title }}
@@ -54,6 +57,7 @@ const md = new Remarkable({
 export default {
   data () {
     return {
+      loading: true,
       title: '',
       body: '',
       author: '',
@@ -99,6 +103,7 @@ export default {
         this.pending_payout_value = parseFloat(r.pending_payout_value.split(' ')[0])
       })
       .catch(e => console.log(e))
+      .finally(() => (this.loading = false))
   },
   updated () {
     Array.prototype.forEach.call(document.querySelectorAll('article pre code'),

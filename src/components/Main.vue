@@ -150,6 +150,12 @@ export default {
   },
   created () {
     // this.getDiscussions()
+  },
+  deactivated () {
+    this.busy = true
+  },
+  activated () {
+    this.busy = false
   }
 }
 </script>
