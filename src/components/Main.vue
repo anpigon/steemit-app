@@ -27,10 +27,10 @@
                   height="200px">
                 </v-card-media>
                 <v-list three-line>
-                  <v-list-tile :to="'@' + d.author + '/' + d.permlink">
+                  <v-list-tile :to="'/@' + d.author + '/' + d.permlink">
                     <v-list-tile-content>
                       <v-list-tile-title>{{ d.title }}</v-list-tile-title>
-                      <v-list-tile-sub-title class='ellipsis'>{{ d.body }}</v-list-tile-sub-title>
+                      <v-list-tile-sub-title class='text-ellipsis'>{{ d.body }}</v-list-tile-sub-title>
                     </v-list-tile-content>
                   </v-list-tile>
                 </v-list>
@@ -160,12 +160,15 @@ export default {
 }
 </script>
 <style>
-.ellipsis {
+.text-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  display: -webkit-box;
   -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;  
+  display: -moz-box;                /* Mozilla */
+  display: -webkit-box;             /* WebKit */
+  display: box;                     /* As specified */
+  -moz-box-orient: vertical;      /* Mozilla */
+  -webkit-box-orient: vertical;   /* WebKit */
+  box-orient: vertical;           /* As specified */ 
 }
 </style>
