@@ -1,6 +1,6 @@
 {
-  "name": "my-project",
-  "short_name": "my-project",
+  "name": "Steemlog",
+  "short_name": "Steemlog",
   "icons": [
     {
       "src": "/static/img/icons/android-chrome-192x192.png",
