@@ -49,3 +49,15 @@
     }
   }
 </script>
+
+<style>
+.reputation {
+  font-size: 13px;
+  font-size: 0.8125rem;
+  line-height: 1;
+  padding: 0;
+  margin-left: -1px;
+  font-weight: normal;
+  transition: 0.3s all ease-in-out;
+}
+</style>

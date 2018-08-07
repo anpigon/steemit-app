@@ -14,6 +14,7 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
+    "browserslist": "^4.0.1",
     "highlight.js": "^9.12.0",
     "remarkable": "^1.7.1",
     "steem": "^0.7.1",

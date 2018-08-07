@@ -5,34 +5,50 @@
   </v-layout>
   <v-layout v-if="!loading">
     <v-flex xs12 md8 offset-md2>
-      <v-card>
-        <v-card-title class="headline pb-0">
-          {{ title }}
-        </v-card-title>
-        <v-layout>
-          <v-flex xs6>
-            <v-list class='pt-0'>
-              <v-list-tile avatar>
-                <v-list-tile-avatar>
-                <img :src="'https://steemitimages.com/u/' + author + '/avatar'" alt="avatar">
-                </v-list-tile-avatar>
-                <v-list-tile-content>
-                  <v-list-tile-title>{{ author }} ({{author_reputation | filterReputation}})</v-list-tile-title>
-                  <v-list-tile-sub-title>{{created | filterCreated}} · {{category}}</v-list-tile-sub-title>
-                </v-list-tile-content>
-              </v-list-tile>
-            </v-list>
+      <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
+        <v-layout justify-start column fill-height v-scroll="onScroll">
+          <v-flex xs12>
+            <v-card>
+              <v-card-title class="headline pb-0">
+                {{ title }}
+              </v-card-title>
+              <v-layout>
+                <v-flex xs7 class='pr-0'>
+                  <v-list class='pt-0'>
+                    <v-list-tile avatar>
+                      <v-list-tile-avatar>
+                      <img :src="'https://steemitimages.com/u/' + author + '/avatar'" alt="avatar">
+                      </v-list-tile-avatar>
+                      <v-list-tile-content>
+                        <v-list-tile-title>{{ author }} <span class='reputation'>({{author_reputation | filterReputation}})</span></v-list-tile-title>
+                        <v-list-tile-sub-title>{{created | filterCreated}} · {{category}}</v-list-tile-sub-title>
+                      </v-list-tile-content>
+                    </v-list-tile>
+                  </v-list>
+                </v-flex>
+                <v-flex xs5 text-xs-right class='pr-4 pt-3'>
+                  <div>좋아요 {{ net_votes }} · 댓글 {{ children }}</div>
+                  <strong>${{ payout_value }}</strong>
+                </v-flex>
+              </v-layout>
+              <v-divider></v-divider>
+              <v-card-text>
+                <article v-html="body"></article>
+              </v-card-text>
+              <v-card-text>
+                <template v-for="tag in tags">
+                  <a href='javascript:false' class='tag' :key='tag'>#{{ tag }}</a>
+                </template>
+              </v-card-text>
+            </v-card>
           </v-flex>
-          <v-flex text-xs-right class='pr-4 pt-3'>
-            <div>좋아요 {{ net_votes }}명 · 댓글 {{ children }}명</div>
-            <strong>${{ payout_value }}</strong>
+          <v-flex xs12>
+            <v-card ref='comments'>
+              여기는 댓글 영역
+            </v-card>
           </v-flex>
         </v-layout>
-        <v-divider></v-divider>
-        <v-card-text>
-          <article v-html="body"></article>
-        </v-card-text>
-      </v-card>
+      </div>
     </v-flex>
   </v-layout>
 </v-container>
@@ -41,6 +57,7 @@
 import steem from 'steem'
 import Remarkable from 'remarkable'
 import hljs from 'highlight.js'
+// import infiniteScroll from 'vue-infinite-scroll'
 
 // hljs.configure({
 //   tabReplace: '  ' // 2 spaces
@@ -68,9 +85,14 @@ export default {
       created: '',
       total_payout_value: 0,
       curator_payout_value: 0,
-      pending_payout_value: 0
+      pending_payout_value: 0,
+      tags: [],
+      busy: false
     }
   },
+  // directives: {
+  //   infiniteScroll
+  // },
   // computed 기능 구현
   computed: {
     // payout_value 금액 계산
@@ -79,6 +101,7 @@ export default {
     }
   },
   deactivated () {
+    this.busy = true
     // 해당 컴포넌트가 비활성화 되었을때, 컴포넌트를 메모리에서 제거한다.
     this.$destroy()
   },
@@ -90,8 +113,30 @@ export default {
     steem.api.getContentAsync(author, permlink)
       .then(r => {
         console.log(r)
+        const metadata = JSON.parse(r.json_metadata)
+        console.log('metadata:', metadata)
+
+        let body = r.body
+
+        // # 1. 이미지 URL이 있는 경우 이미지 태그로 변환(정규식 테스트 필요!!!)
+        // body = body.replace(/(https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?(^[\n|\r\n])))/ig, '<img src="$1">')
+        body = body.replace(/([^\\(]https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?)/ig, '<img src="$1">')
+        // console.log('image replace:', body)
+
+        // # 2. 유튜브 URL이 있는 경우 동영상 태그로 치환
+        body = body.replace(/https:\/\/www.youtube.com\/watch\?[a-zA-Z]=([a-zA-Z0-9]*)/gi, '<div class="videoWrapper"><iframe src="https://www.youtube.com/embed/$1"></iframe></div></p>')
+        body = body.replace(/https:\/\/youtu.be\/([\w]*)/gi, '<div class="videoWrapper"><iframe src="https://www.youtube.com/embed/$1"></iframe></div></p>')
+
+        // # 3. @유저명 치환
+
+        // # 4. #태그 치환
+
+        // # 9. 마크다운인 경우 HTML 로 변환
+        body = md.render(body)
+        // console.log('md -> html:', body)
+
         this.title = r.title
-        this.body = md.render(r.body)
+        this.body = body
         this.category = r.category
         this.children = r.children
         this.net_votes = r.net_votes
@@ -101,15 +146,29 @@ export default {
         this.total_payout_value = parseFloat(r.total_payout_value.split(' ')[0])
         this.curator_payout_value = parseFloat(r.curator_payout_value.split(' ')[0])
         this.pending_payout_value = parseFloat(r.pending_payout_value.split(' ')[0])
+        this.tags = metadata.tags
       })
       .catch(e => console.log(e))
       .finally(() => (this.loading = false))
+
+    console.log(this.$refs.comments)
   },
   updated () {
     Array.prototype.forEach.call(document.querySelectorAll('article pre code'),
       function (block) {
         hljs.highlightBlock(block)
       })
+  },
+  methods: {
+    loadMore: function () {
+      this.busy = true
+      console.log('댓글 로드!!!')
+    },
+    onScroll (e) {
+      var offsetTop = window.pageYOffset || document.documentElement.scrollTop
+      var offsetBottom = offsetTop + window.innerHeight
+      console.log(offsetTop, offsetBottom)
+    }
   }
 }
 </script>
@@ -230,9 +289,10 @@ article div.videoWrapper iframe {
   height: 100%;
   left: 0;
   top: 0; 
+  border: 0;
 }
 article blockquote {
-  border-left: 1px solid #788187; 
+  border-left: 5px solid #eee;
   margin: 0 0 1rem;
   padding: 0.5625rem 1.25rem 0 1.1875rem;
 }
@@ -253,7 +313,7 @@ article tfoot {
   border: 1px solid #f1f1f1;
   background-color: #fefefe; 
 }
-article  caption {
+article caption {
   padding: 0.5rem 0.625rem 0.625rem;
   font-weight: bold; 
 }
@@ -303,5 +363,31 @@ article a, article a:visited {
 }
 article a:hover  {
   color: #06D6A9; 
+}
+article a:after {
+  content: 'launch';
+  font-family: 'Material Icons' !important;
+  font-weight: normal;
+  font-style: normal;
+  vertical-align: bottom;
+  display: inline-block;
+  margin-left: 0.2em;
+  opacity: .5;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;  
+}
+a.tag {
+  color: #333;
+  text-decoration: none;
+  border: 1px solid #eee;
+  display: inline-block;
+  margin: 0.1rem 0.4rem 0.1rem 0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+  transition: 0.2s all ease-in-out;
+}
+a.tag:hover {
+  background: #fcfcfc;
+  border: 1px solid #788187;
 }
 </style>

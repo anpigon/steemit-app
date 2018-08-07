@@ -16,7 +16,7 @@
                     <img :src="'https://steemitimages.com/u/' + d.author + '/avatar'" alt="avatar">
                     </v-list-tile-avatar>
                     <v-list-tile-content>
-                      <v-list-tile-title>{{ d.author }} ({{ d.author_reputation }})</v-list-tile-title>
+                      <v-list-tile-title>{{ d.author }} <span class='reputation'>({{ d.author_reputation }})</span></v-list-tile-title>
                       <v-list-tile-sub-title>{{ d.created | filterCreated }} · {{ d.category }}</v-list-tile-sub-title>
                     </v-list-tile-content>
                   </v-list-tile>
@@ -167,8 +167,10 @@ export default {
   display: -moz-box;                /* Mozilla */
   display: -webkit-box;             /* WebKit */
   display: box;                     /* As specified */
+  /*! autoprefixer: off */
   -moz-box-orient: vertical;      /* Mozilla */
   -webkit-box-orient: vertical;   /* WebKit */
   box-orient: vertical;           /* As specified */ 
+  /*! autoprefixer: on */
 }
 </style>
