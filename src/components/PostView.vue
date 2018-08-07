@@ -5,50 +5,55 @@
   </v-layout>
   <v-layout v-if="!loading">
     <v-flex xs12 md8 offset-md2>
-      <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
-        <v-layout justify-start column fill-height v-scroll="onScroll">
-          <v-flex xs12>
-            <v-card>
-              <v-card-title class="headline pb-0">
-                {{ title }}
-              </v-card-title>
-              <v-layout>
-                <v-flex xs7 class='pr-0'>
-                  <v-list class='pt-0'>
-                    <v-list-tile avatar>
-                      <v-list-tile-avatar>
-                      <img :src="'https://steemitimages.com/u/' + author + '/avatar'" alt="avatar">
-                      </v-list-tile-avatar>
-                      <v-list-tile-content>
-                        <v-list-tile-title>{{ author }} <span class='reputation'>({{author_reputation | filterReputation}})</span></v-list-tile-title>
-                        <v-list-tile-sub-title>{{created | filterCreated}} · {{category}}</v-list-tile-sub-title>
-                      </v-list-tile-content>
-                    </v-list-tile>
-                  </v-list>
-                </v-flex>
-                <v-flex xs5 text-xs-right class='pr-4 pt-3'>
-                  <div>좋아요 {{ net_votes }} · 댓글 {{ children }}</div>
-                  <strong>${{ payout_value }}</strong>
-                </v-flex>
+      <v-layout justify-start column fill-height v-scroll="onScroll">
+        <v-flex xs12>
+          <v-card>
+            <v-card-title class="headline pb-0">
+              {{ title }}
+            </v-card-title>
+            <v-layout>
+              <v-flex xs7 class='pr-0'>
+                <v-list class='pt-0'>
+                  <v-list-tile avatar>
+                    <v-list-tile-avatar>
+                    <img :src="'https://steemitimages.com/u/' + author + '/avatar'" alt="avatar">
+                    </v-list-tile-avatar>
+                    <v-list-tile-content>
+                      <v-list-tile-title>{{ author }} <span class='reputation'>({{author_reputation | filterReputation}})</span></v-list-tile-title>
+                      <v-list-tile-sub-title>{{created | filterCreated}} · {{category}}</v-list-tile-sub-title>
+                    </v-list-tile-content>
+                  </v-list-tile>
+                </v-list>
+              </v-flex>
+              <v-flex xs5 text-xs-right class='pr-4 pt-3'>
+                <div>좋아요 {{ net_votes }} · 댓글 {{ children }}</div>
+                <strong>${{ payout_value }}</strong>
+              </v-flex>
+            </v-layout>
+            <v-divider></v-divider>
+            <v-card-text>
+              <article v-html="body"></article>
+            </v-card-text>
+            <v-card-text>
+              <template v-for="tag in tags">
+                <a href='javascript:false' class='tag' :key='tag'>#{{ tag }}</a>
+              </template>
+            </v-card-text>
+          </v-card>
+        </v-flex>
+        <v-flex xs12>
+          <v-card ref='comments'>
+            <v-container grid-list-md v-if='!loadedComments'>
+              <v-layout align-center justify-center>
+                <v-progress-circular color="primary" indeterminate></v-progress-circular>
               </v-layout>
-              <v-divider></v-divider>
-              <v-card-text>
-                <article v-html="body"></article>
-              </v-card-text>
-              <v-card-text>
-                <template v-for="tag in tags">
-                  <a href='javascript:false' class='tag' :key='tag'>#{{ tag }}</a>
-                </template>
-              </v-card-text>
-            </v-card>
-          </v-flex>
-          <v-flex xs12>
-            <v-card ref='comments'>
+            </v-container>
+            <v-card-text v-if='loadedComments'>
               여기는 댓글 영역
-            </v-card>
-          </v-flex>
-        </v-layout>
-      </div>
+            </v-card-text>
+          </v-card>
+        </v-flex>
+      </v-layout>
     </v-flex>
   </v-layout>
 </v-container>
@@ -57,6 +62,7 @@
 import steem from 'steem'
 import Remarkable from 'remarkable'
 import hljs from 'highlight.js'
+import _ from 'lodash'
 // import infiniteScroll from 'vue-infinite-scroll'
 
 // hljs.configure({
@@ -75,6 +81,7 @@ export default {
   data () {
     return {
       loading: true,
+      permlink: '',
       title: '',
       body: '',
       author: '',
@@ -87,7 +94,8 @@ export default {
       curator_payout_value: 0,
       pending_payout_value: 0,
       tags: [],
-      busy: false
+      comments: [],
+      loadedComments: false
     }
   },
   // directives: {
@@ -98,6 +106,10 @@ export default {
     // payout_value 금액 계산
     payout_value () {
       return (this.total_payout_value + this.curator_payout_value + this.pending_payout_value).toFixed(2)
+    },
+    commentsOffsetTop () {
+      const { offsetTop, offsetHeight } = this.$refs.comments.$el
+      return offsetTop + offsetHeight + 60
     }
   },
   deactivated () {
@@ -120,7 +132,7 @@ export default {
 
         // # 1. 이미지 URL이 있는 경우 이미지 태그로 변환(정규식 테스트 필요!!!)
         // body = body.replace(/(https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?(^[\n|\r\n])))/ig, '<img src="$1">')
-        body = body.replace(/([^\\(]https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?)/ig, '<img src="$1">')
+        body = body.replace(/([^\\(|>]https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?)/ig, '<img src="$1">')
         // console.log('image replace:', body)
 
         // # 2. 유튜브 URL이 있는 경우 동영상 태그로 치환
@@ -135,6 +147,7 @@ export default {
         body = md.render(body)
         // console.log('md -> html:', body)
 
+        this.permlink = r.permlink
         this.title = r.title
         this.body = body
         this.category = r.category
@@ -150,8 +163,6 @@ export default {
       })
       .catch(e => console.log(e))
       .finally(() => (this.loading = false))
-
-    console.log(this.$refs.comments)
   },
   updated () {
     Array.prototype.forEach.call(document.querySelectorAll('article pre code'),
@@ -160,15 +171,24 @@ export default {
       })
   },
   methods: {
-    loadMore: function () {
-      this.busy = true
-      console.log('댓글 로드!!!')
+    onScroll () {
+      const windowOffsetBottom = (window.pageYOffset || document.documentElement.scrollTop) + window.innerHeight
+      // console.log(windowOffsetBottom, this.commentsOffsetTop)
+      // console.log(this.loadedComments)
+      if (!this.loadedComments && (this.commentsOffsetTop > windowOffsetBottom - 10 || this.commentsOffsetTop < windowOffsetBottom + 10)) {
+        console.log('댓글 영역 도달!!!')
+        this.getState()
+      }
     },
-    onScroll (e) {
-      var offsetTop = window.pageYOffset || document.documentElement.scrollTop
-      var offsetBottom = offsetTop + window.innerHeight
-      console.log(offsetTop, offsetBottom)
-    }
+    getState: _.debounce(() => {
+      console.log('댓글 로드!!!')
+      steem.api.getStateAsync(`/${this.category}/@${this.author}/${this.permlink}`)
+        .then(r => {
+          console.log(r)
+          this.loadedComments = true
+          this.comments = []
+        })
+    }, 500)
   }
 }
 </script>
@@ -375,6 +395,18 @@ article a:after {
   opacity: .5;
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;  
+}
+article sub, article sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+article sub {
+  bottom: -0.25em;
+}
+article sup {
+  top: -0.5em;
 }
 a.tag {
   color: #333;

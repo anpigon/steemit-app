@@ -16,6 +16,7 @@
   "dependencies": {
     "browserslist": "^4.0.1",
     "highlight.js": "^9.12.0",
+    "lodash": "^4.17.10",
     "remarkable": "^1.7.1",
     "steem": "^0.7.1",
     "vue": "^2.5.2",
