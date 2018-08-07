@@ -1,14 +1,17 @@
 # Steemit Service App
 
-> Vue.js를 사용하여 스팀잇 서비스 앱을 구현합니다.
+> Vue.js를 사용하여 스팀잇기반 서비스 앱을 구현합니다.
 >
 > By [@anpigon](https://steemit.com/@anpigon)
+
+![](https://imgur.com/JyuaZuc.gif)
 
 ## 강좌 목록
 
 - [스팀잇(Steemit)기반 앱 만들기 #1](https://steemit.com/kr/@anpigon/steemit-1-10f53977c621e)
 - [스팀잇(Steemit)기반 앱 만들기 #2 - 최근글 가져오기](https://steemit.com/kr/@anpigon/steemit-2)
 - [스팀잇(Steemit)기반 앱 만들기 #3 - 무한 스크롤 구현하기](https://steemit.com/kr/@anpigon/steemit-3)
+- [스팀잇(Steemit)기반 앱 만들기 #4 - 상세화면 구현하기](https://steemit.com/kr/@anpigon/steemit-4)
 
 ## Build Setup
 
