@@ -48,9 +48,27 @@
                 <v-progress-circular color="primary" indeterminate></v-progress-circular>
               </v-layout>
             </v-container>
-            <v-card-text v-if='loadedComments'>
-              여기는 댓글 영역
-            </v-card-text>
+            <template v-if='loadedComments'>
+            <!-- <v-container grid-list-xs>
+              <v-layout column> -->
+                  <v-card flat style='padding:0' class='comments' v-for="c in comments" :key="c.id" >
+                    <v-card-title class="grey--text pb-1">
+                      {{ c.author }} 
+                      <span class='reputation'>({{c.author_reputation | filterReputation}})</span>
+                      · {{c.created | filterCreated}}
+                    </v-card-title>
+                    <v-card-text class='pt-0 pb-0' v-html='c.body'></v-card-text>
+                    <v-card-actions class='pr-3'>
+                      <v-btn small flat><v-icon left dark class='mr-2'>favorite_border</v-icon> 좋아요({{c.net_votes}})</v-btn>
+                      <v-spacer></v-spacer>
+                      <!-- <v-btn small flat><v-icon left dark>comment</v-icon> 댓글달기</v-btn> -->
+                      <strong>${{ c.payout_value }}</strong>
+                    </v-card-actions>
+                    <v-divider></v-divider>
+                  </v-card>
+              <!-- </v-layout>
+            </v-container> -->
+            </template>
           </v-card>
         </v-flex>
       </v-layout>
@@ -171,21 +189,36 @@ export default {
   },
   methods: {
     onScroll () {
-      const windowOffsetBottom = (window.pageYOffset || document.documentElement.scrollTop) + window.innerHeight
-      // console.log(windowOffsetBottom, this.commentsOffsetTop)
-      // console.log(this.loadedComments)
+      const windowOffsetTop = window.pageYOffset || document.documentElement.scrollTop
+      const windowOffsetBottom = windowOffsetTop + window.innerHeight
       if (!this.loadedComments && (this.commentsOffsetTop > windowOffsetBottom - 10 || this.commentsOffsetTop < windowOffsetBottom + 10)) {
         console.log('댓글 영역 도달!!!')
         this.getComments()
       }
     },
-    getComments: _.debounce(() => {
+    getComments: _.debounce(function () {
       console.log('댓글 로드!!!')
-      steem.api.getStateAsync(`/${this.category}/@${this.author}/${this.permlink}`)
+      const path = `/${this.category}/@${this.author}/${this.permlink}` // 댓글을 가져올 글의 path
+      console.log('path:', path)
+      steem.api.getStateAsync(path)
         .then(r => {
           console.log(r)
           this.loadedComments = true
           this.comments = []
+          // const contentPath = `${this.author}/${this.permlink}`
+          for (let key in r.content) {
+            const comment = r.content[key]
+            // console.log(key, comment)
+            // if (comment.author === this.author && comment.permlink === this.permlink) return true
+            if (comment.url === path) continue
+            // console.log('this.comments.push(comment)')
+            // comment.parent_permlink 값으로 부모, 자식 판단
+            // TODO: 재귀함수 호출 필요!!!
+            const item = _.pick(comment, ['id', 'author', 'author_reputation', 'body', 'created', 'net_votes', 'parent_author', 'parent_permlink', 'url', 'children', 'depth'])
+            item.payout_value = (parseFloat(comment.total_payout_value.split(' ')[0]) + parseFloat(comment.curator_payout_value.split(' ')[0]) + parseFloat(comment.pending_payout_value.split(' ')[0])).toFixed(2)
+            // console.log('item', item)
+            this.comments.push(item)
+          }
         })
     }, 500)
   }
@@ -420,5 +453,8 @@ a.tag {
 a.tag:hover {
   background: #fcfcfc;
   border: 1px solid #788187;
+}
+.comments {
+  font-size: 92%;
 }
 </style>
