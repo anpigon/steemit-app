@@ -113,7 +113,6 @@ export default {
     }
   },
   deactivated () {
-    this.busy = true
     // 해당 컴포넌트가 비활성화 되었을때, 컴포넌트를 메모리에서 제거한다.
     this.$destroy()
   },
@@ -177,10 +176,10 @@ export default {
       // console.log(this.loadedComments)
       if (!this.loadedComments && (this.commentsOffsetTop > windowOffsetBottom - 10 || this.commentsOffsetTop < windowOffsetBottom + 10)) {
         console.log('댓글 영역 도달!!!')
-        this.getState()
+        this.getComments()
       }
     },
-    getState: _.debounce(() => {
+    getComments: _.debounce(() => {
       console.log('댓글 로드!!!')
       steem.api.getStateAsync(`/${this.category}/@${this.author}/${this.permlink}`)
         .then(r => {
