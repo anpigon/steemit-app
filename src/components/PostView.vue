@@ -42,6 +42,7 @@
           </v-card>
         </v-flex>
         <v-flex xs12>
+          <v-subheader class='pl-0'>댓글 ({{children}})</v-subheader>
           <v-card ref='comments'>
             <v-container grid-list-md v-if='!loadedComments'>
               <v-layout align-center justify-center>
