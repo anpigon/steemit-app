@@ -49,9 +49,10 @@
               </v-layout>
             </v-container>
             <template v-if='loadedComments'>
+              <Comments :comments='comments'></Comments>
             <!-- <v-container grid-list-xs>
               <v-layout column> -->
-                  <v-card flat style='padding:0' class='comments' v-for="c in comments" :key="c.id" >
+                  <!-- <v-card flat style='padding:0' class='comments' v-for="c in comments" :key="c.id" >
                     <v-card-title class="grey--text pb-1">
                       {{ c.author }} 
                       <span class='reputation'>({{c.author_reputation | filterReputation}})</span>
@@ -61,11 +62,10 @@
                     <v-card-actions class='pr-3'>
                       <v-btn small flat><v-icon left dark class='mr-2'>favorite_border</v-icon> 좋아요({{c.net_votes}})</v-btn>
                       <v-spacer></v-spacer>
-                      <!-- <v-btn small flat><v-icon left dark>comment</v-icon> 댓글달기</v-btn> -->
                       <strong>${{ c.payout_value }}</strong>
                     </v-card-actions>
                     <v-divider></v-divider>
-                  </v-card>
+                  </v-card> -->
               <!-- </v-layout>
             </v-container> -->
             </template>
@@ -76,12 +76,15 @@
   </v-layout>
 </v-container>
 </template>
+
 <script>
 import steem from 'steem'
 import Remarkable from 'remarkable'
 import hljs from 'highlight.js'
 import _ from 'lodash'
 // import infiniteScroll from 'vue-infinite-scroll'
+
+import Comments from '@/components/Comments'
 
 // hljs.configure({
 //   tabReplace: '  ' // 2 spaces
@@ -96,6 +99,7 @@ const md = new Remarkable({
 })
 
 export default {
+  components: { Comments },
   data () {
     return {
       loading: true,
@@ -126,8 +130,9 @@ export default {
       return (this.total_payout_value + this.curator_payout_value + this.pending_payout_value).toFixed(2)
     },
     commentsOffsetTop () {
-      const { offsetTop, offsetHeight } = this.$refs.comments.$el
-      return offsetTop + offsetHeight + 60
+      // const { offsetTop, offsetHeight } = this.$refs.comments.$el
+      // return offsetTop + offsetHeight + 60
+      return this.$refs.comments.$el.offsetTop
     }
   },
   deactivated () {
@@ -191,7 +196,9 @@ export default {
     onScroll () {
       const windowOffsetTop = window.pageYOffset || document.documentElement.scrollTop
       const windowOffsetBottom = windowOffsetTop + window.innerHeight
-      if (!this.loadedComments && (this.commentsOffsetTop > windowOffsetBottom - 10 || this.commentsOffsetTop < windowOffsetBottom + 10)) {
+      // if (!this.loadedComments && (this.commentsOffsetTop > windowOffsetBottom - 10 || this.commentsOffsetTop < windowOffsetBottom + 10)) {
+      // console.log(this.commentsOffsetTop, windowOffsetBottom)
+      if (!this.loadedComments && windowOffsetBottom > this.commentsOffsetTop) {
         console.log('댓글 영역 도달!!!')
         this.getComments()
       }
@@ -201,26 +208,28 @@ export default {
       const path = `/${this.category}/@${this.author}/${this.permlink}` // 댓글을 가져올 글의 path
       console.log('path:', path)
       steem.api.getStateAsync(path)
-        .then(r => {
-          console.log(r)
+        .then(({ content }) => {
+          console.log(content)
           this.loadedComments = true
-          this.comments = []
-          // const contentPath = `${this.author}/${this.permlink}`
-          for (let key in r.content) {
-            const comment = r.content[key]
-            // console.log(key, comment)
-            // if (comment.author === this.author && comment.permlink === this.permlink) return true
-            if (comment.url === path) continue
-            // console.log('this.comments.push(comment)')
-            // comment.parent_permlink 값으로 부모, 자식 판단
-            // TODO: 재귀함수 호출 필요!!!
-            const item = _.pick(comment, ['id', 'author', 'author_reputation', 'body', 'created', 'net_votes', 'parent_author', 'parent_permlink', 'url', 'children', 'depth'])
-            item.payout_value = (parseFloat(comment.total_payout_value.split(' ')[0]) + parseFloat(comment.curator_payout_value.split(' ')[0]) + parseFloat(comment.pending_payout_value.split(' ')[0])).toFixed(2)
-            // console.log('item', item)
-            this.comments.push(item)
-          }
+
+          // 댓글 목록 조회
+          const root = _.find(content, { depth: 0 }) // content에서 본문만 가져오기
+          addComments(content, root) // 재귀함수 호출
+          this.comments = root.comments
         })
     }, 500)
+  }
+}
+
+function addComments (contents, root) {
+  if (root.children > 0) { // root가 children를 가지고 있으면 실행
+    if (!root.comments) root.comments = [] // root의 댓글을 담을 comments 변수 초기화
+    root.replies.forEach(key => { // 댓글key를 가지고 있는 root.replies 배열을 반복하여 contents에서 key와 매칭되는 댓글 데이터 가져옴
+      const comment = _.pick(contents[key], ['id', 'author', 'author_reputation', 'body', 'created', 'net_votes', 'permlink', 'parent_author', 'parent_permlink', 'url', 'children', 'depth', 'replies', 'total_payout_value', 'curator_payout_value', 'pending_payout_value'])
+      comment.payout_value = (parseFloat(comment.total_payout_value.split(' ')[0]) + parseFloat(comment.curator_payout_value.split(' ')[0]) + parseFloat(comment.pending_payout_value.split(' ')[0])).toFixed(2)
+      root.comments.push(comment) // root의 댓글목록에 추가
+      addComments(contents, comment) // 현재 댓글에 자식 댓글이 있는지 찾기 위해 재귀함수 호출
+    })
   }
 }
 </script>
