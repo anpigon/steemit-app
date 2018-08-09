@@ -3,17 +3,42 @@
   "short_name": "Steemlog",
   "icons": [
     {
-      "src": "/static/img/icons/android-chrome-192x192.png",
+      "src": "/static/img/icons/icon-48x48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "/static/img/icons/icon-68x68.png",
+      "type": "image/png",
+      "sizes": "68x68"
+    },
+    {
+      "src": "/static/img/icons/icon-72x72.png",
+      "type": "image/png",
+      "sizes": "72x72"
+    },
+    {
+      "src": "/static/img/icons/icon-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "/static/img/icons/icon-128x128",
+      "type": "image/png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "/static/img/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/static/img/icons/android-chrome-512x512.png",
+      "src": "/static/img/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ],
-  "start_url": "/index.html",
+  "start_url": "/index.html?launcher=true",
   "display": "standalone",
   "background_color": "#00BFA5",
   "theme_color": "#00BFA5"
