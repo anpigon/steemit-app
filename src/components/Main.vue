@@ -13,7 +13,7 @@
                 <v-list>
                   <v-list-tile avatar>
                     <v-list-tile-avatar>
-                    <img :src="'https://steemitimages.com/u/' + d.author + '/avatar'" alt="avatar">
+                    <img :src="'https://steemitimages.com/u/' + d.author + '/avatar/small'" alt="avatar" onerror="this.src='https://steemitimages.com/u/monawoo/avatar/small'">
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                       <v-list-tile-title>{{ d.author }} <span class='reputation'>({{ d.author_reputation }})</span></v-list-tile-title>
@@ -41,22 +41,23 @@
                 </v-card-title>
                 <v-divider></v-divider>
                 <v-card-actions>
-                  <v-btn flat><v-icon left dark>favorite_border</v-icon> 좋아요</v-btn>
+                  <v-btn flat><v-icon left dark class='mr-2'>favorite_border</v-icon> 좋아요</v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn flat><v-icon left dark>comment</v-icon> 댓글달기</v-btn>
+                  <v-btn flat><v-icon left dark class='mr-2'>comment</v-icon> 댓글달기</v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn flat><v-icon left dark>reply</v-icon> 공유하기</v-btn>
+                  <v-btn flat><v-icon left dark class='mr-2'>reply</v-icon> 공유하기</v-btn>
                 </v-card-actions>
               </v-card>
             </v-flex><!-- // v-for END -->
           </v-layout>
         </div>
-        <div class="text-xs-center mt-3" v-show="busy">
+        <div class="text-xs-center mt-3 mb-3" v-show="busy">
           <v-progress-circular
             indeterminate
             color="primary"
           ></v-progress-circular>
         </div>
+        <div class='bottom'></div>
       </v-flex>
     </v-layout>
   </v-container>
@@ -83,67 +84,71 @@ export default {
   methods: {
     loadMore: function () {
       this.busy = true
+      // this.$refs.infiniteScroll.$el.scrollTop = this.$refs.infiniteScroll.$el.scrollHeight
       this.getDiscussions()
+      // window.scrollTo(0, document.body.scrollHeight)
+      // var scrollingElement = (document.scrollingElement || document.body)
+      // scrollingElement.scrollTop = scrollingElement.scrollHeight
+      // scrollingElement.scrollIntoView(false)
+      // scrollingElement.scrollIntoView({ behavior: 'smooth' })
+      // scrollingElement.animate({ scrollTop: scrollingElement.scrollHeight }, 'slow')
     },
     getDiscussions () {
       let query = {
         tag: 'kr',
-        limit: 10,
+        limit: 11,
         start_permlink: this.next.permlink,
         start_author: this.next.author
       }
       // 스팀잇 최근글 가져오기
       steem.api.getDiscussionsByCreated(query, (err, result) => {
-        this.busy = false
-        if (!err) {
-          // 추가로 가져온 글의 첫번쨰 항목 제거
-          if (this.discussions.length > 0) {
-            result = result.slice(1)
+        // this.$refs.infiniteScroll.$el.scrollTop = this.$refs.infiniteScroll.$el.scrollHeight
+        if (err) {
+          console.log(err)
+          return
+        }
+
+        // 가져온 데이터를 items 에 담는다.
+        const items = result.slice(0, 10).map(item => {
+          const metadata = JSON.parse(item.json_metadata) // 메타데이터 JSON 파싱
+          const image = metadata.image ? metadata.image[0] : '' // 이미지 URL
+
+          const totalPayoutValue = parseFloat(item.total_payout_value.split(' ')[0])
+          const curatorPayoutValue = parseFloat(item.curator_payout_value.split(' ')[0])
+          const pendingPayoutCalue = parseFloat(item.pending_payout_value.split(' ')[0])
+          item.payout_value = (totalPayoutValue + curatorPayoutValue + pendingPayoutCalue).toFixed(2)
+
+          item.author_reputation = steem.formatter.reputation(item.author_reputation) // 저자 명성
+
+          item.created = item.created
+
+          item.body = md.render(item.body).replace(/<\/?[^>]+(>|$)/g, '')
+
+          return {
+            id: item.id,
+            image: image,
+            author: item.author,
+            author_reputation: item.author_reputation,
+            title: item.title,
+            created: item.created,
+            body: item.body.substr(0, 200),
+            category: item.category,
+            permlink: item.permlink,
+            url: item.url,
+            payout_value: item.payout_value,
+            net_votes: item.net_votes,
+            children: item.children
           }
+        })
 
-          // 스크롤 활성화
-          if (result.length > 10) {
-            this.busy = false
-          }
+        // items배열을 기존 discussions 배열과 합친다.
+        this.discussions = this.discussions.concat(items)
 
-          // 가져온 데이터를 items 에 담는다.
-          const items = result.map(item => {
-            const metadata = JSON.parse(item.json_metadata) // 메타데이터 JSON 파싱
-            const image = metadata.image ? metadata.image[0] : '' // 이미지 URL
-
-            const totalPayoutValue = parseFloat(item.total_payout_value.split(' ')[0])
-            const curatorPayoutValue = parseFloat(item.curator_payout_value.split(' ')[0])
-            const pendingPayoutCalue = parseFloat(item.pending_payout_value.split(' ')[0])
-            item.payout_value = (totalPayoutValue + curatorPayoutValue + pendingPayoutCalue).toFixed(2)
-
-            item.author_reputation = steem.formatter.reputation(item.author_reputation) // 저자 명성
-
-            item.created = item.created
-
-            item.body = md.render(item.body).replace(/<\/?[^>]+(>|$)/g, '')
-
-            this.next.permlink = item.permlink
-            this.next.author = item.author
-
-            return {
-              id: item.id,
-              image: image,
-              author: item.author,
-              author_reputation: item.author_reputation,
-              title: item.title,
-              created: item.created,
-              body: item.body.substr(0, 200),
-              category: item.category,
-              permlink: item.permlink,
-              url: item.url,
-              payout_value: item.payout_value,
-              net_votes: item.net_votes,
-              children: item.children
-            }
-          })
-
-          // items배열을 기존 discussions 배열과 합친다.
-          this.discussions = this.discussions.concat(items)
+        // 스크롤 활성화
+        if (result.length > 10) {
+          this.next.permlink = result[10].permlink
+          this.next.author = result[10].author
+          this.busy = false
         }
       })
     }
@@ -172,5 +177,9 @@ export default {
   -webkit-box-orient: vertical;   /* WebKit */
   box-orient: vertical;           /* As specified */ 
   /*! autoprefixer: on */
+}
+.bottom {
+  min-height: 10px;
+  display: block;
 }
 </style>
