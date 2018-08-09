@@ -50,14 +50,13 @@
               </v-card>
             </v-flex><!-- // v-for END -->
           </v-layout>
+          <div class="text-xs-center mt-3 mb-3" v-show="next.exist">
+            <v-progress-circular
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
+          </div>
         </div>
-        <div class="text-xs-center mt-3 mb-3" v-show="busy">
-          <v-progress-circular
-            indeterminate
-            color="primary"
-          ></v-progress-circular>
-        </div>
-        <div class='bottom'></div>
       </v-flex>
     </v-layout>
   </v-container>
@@ -74,6 +73,7 @@ export default {
     discussions: [],
     busy: false,
     next: {
+      exist: true,
       permlink: null,
       author: null
     }
@@ -144,8 +144,9 @@ export default {
         // items배열을 기존 discussions 배열과 합친다.
         this.discussions = this.discussions.concat(items)
 
+        this.next.exist = (result.length > 10)
         // 스크롤 활성화
-        if (result.length > 10) {
+        if (this.next.exist) {
           this.next.permlink = result[10].permlink
           this.next.author = result[10].author
           this.busy = false
