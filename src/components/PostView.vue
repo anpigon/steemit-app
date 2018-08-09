@@ -183,6 +183,8 @@ export default {
         this.curator_payout_value = parseFloat(r.curator_payout_value.split(' ')[0])
         this.pending_payout_value = parseFloat(r.pending_payout_value.split(' ')[0])
         this.tags = metadata.tags
+
+        this.loadedComments = (r.children === 0)
       })
       .catch(e => console.log(e))
       .finally(() => (this.loading = false))

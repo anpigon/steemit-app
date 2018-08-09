@@ -1,11 +1,12 @@
 <template>
   <div>
-      <template v-for="c in comments">
+      <template v-for="(c, idx) in comments">
         <v-layout :key="c.id">
-          <v-flex v-if="c.depth > 1" xs1>
+          <div v-if="c.depth > 1" xs1>
             <span class='depth'></span>
-          </v-flex>
+          </div>
           <v-flex>
+            <v-divider v-if="(c.depth + idx) > 1"></v-divider>
             <v-card flat style='padding:0' class='comments'>
               <v-card-title class="grey--text pb-1">
                 {{ c.author }} 
@@ -20,7 +21,6 @@
                 <strong>${{ c.payout_value }}</strong>
               </v-card-actions>
             </v-card>
-            <v-divider></v-divider>
             <Comments :comments='c.comments'></Comments>
           </v-flex>
         </v-layout>

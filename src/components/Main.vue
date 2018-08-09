@@ -41,20 +41,21 @@
                 </v-card-title>
                 <v-divider></v-divider>
                 <v-card-actions>
-                  <v-btn flat><v-icon left dark>favorite_border</v-icon> 좋아요</v-btn>
+                  <v-btn flat><v-icon left dark class='mr-2'>favorite_border</v-icon> 좋아요</v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn flat><v-icon left dark>comment</v-icon> 댓글달기</v-btn>
+                  <v-btn flat><v-icon left dark class='mr-2'>comment</v-icon> 댓글달기</v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn flat><v-icon left dark>reply</v-icon> 공유하기</v-btn>
+                  <v-btn flat><v-icon left dark class='mr-2'>reply</v-icon> 공유하기</v-btn>
                 </v-card-actions>
               </v-card>
             </v-flex><!-- // v-for END -->
           </v-layout>
         </div>
-        <div class="text-xs-center mt-3" v-show="busy">
+        <div class="text-xs-center mt-3">
           <v-progress-circular
             indeterminate
             color="primary"
+             v-show="busy"
           ></v-progress-circular>
         </div>
       </v-flex>
