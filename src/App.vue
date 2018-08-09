@@ -24,7 +24,7 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar color="indigo" dark fixed app>
+    <v-toolbar color="teal accent-4" dark fixed app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>Steemlog</v-toolbar-title>
     </v-toolbar>
@@ -33,9 +33,9 @@
         <router-view></router-view>
       </keep-alive>
     </v-content>
-    <v-footer color="indigo" app>
+    <!-- <v-footer color="indigo" app>
       <span class="white--text ml-3"><a href='https://steemit.com/@anpigon' class="white--text">@anpigon</a> &copy; 2018</span>
-    </v-footer>
+    </v-footer> -->
   </v-app>
 </template>
 
@@ -49,3 +49,15 @@
     }
   }
 </script>
+
+<style>
+.reputation {
+  font-size: 13px;
+  font-size: 0.8125rem;
+  line-height: 1;
+  padding: 0;
+  margin-left: -1px;
+  font-weight: normal;
+  transition: 0.3s all ease-in-out;
+}
+</style>
