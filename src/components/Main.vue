@@ -13,7 +13,7 @@
                 <v-list>
                   <v-list-tile avatar>
                     <v-list-tile-avatar>
-                    <img :src="'https://steemitimages.com/u/' + d.author + '/avatar'" alt="avatar">
+                    <img :src="'https://steemitimages.com/u/' + d.author + '/avatar/small'" alt="avatar" onerror="this.src='https://steemitimages.com/u/monawoo/avatar/small'">
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                       <v-list-tile-title>{{ d.author }} <span class='reputation'>({{ d.author_reputation }})</span></v-list-tile-title>

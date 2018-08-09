@@ -16,7 +16,7 @@
                 <v-list class='pt-0'>
                   <v-list-tile avatar>
                     <v-list-tile-avatar>
-                    <img :src="'https://steemitimages.com/u/' + author + '/avatar'" alt="avatar">
+                    <img :src="'https://steemitimages.com/u/' + author + '/avatar/small'" alt="avatar" onerror="this.src='https://steemitimages.com/u/monawoo/avatar/small'">
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                       <v-list-tile-title>{{ author }} <span class='reputation'>({{author_reputation | filterReputation}})</span></v-list-tile-title>
@@ -155,7 +155,9 @@ export default {
 
         // # 1. 이미지 URL이 있는 경우 이미지 태그로 변환(정규식 테스트 필요!!!)
         // body = body.replace(/(https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?(^[\n|\r\n])))/ig, '<img src="$1">')
-        body = body.replace(/([^\\(|>]https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?)/ig, '<img src="$1">')
+        // body = body.replace(/(^http(s)?:\/\/steemit(dev|stage)?images.com\/.+)/g, '<img src="$1">')
+        body = body.replace(/(https?:\/\/steemit(dev|stage)?images.com(\/([0-9]+x[0-9]+))?\/.+)/g, '<img src="$1">')
+        body = body.replace(/([^\\(|>|'|"|\\/]https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?)/ig, '<img src="$1">')
         // console.log('image replace:', body)
 
         // # 2. 유튜브 URL이 있는 경우 동영상 태그로 치환
@@ -194,6 +196,7 @@ export default {
       function (block) {
         hljs.highlightBlock(block)
       })
+    this.onScroll() // 스크롤이 없는 화면이 있는 경우
   },
   methods: {
     onScroll () {
