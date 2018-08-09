@@ -27,6 +27,8 @@
     <v-toolbar color="teal accent-4" dark fixed app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>Steemlog</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn flat small>로그인</v-btn>
     </v-toolbar>
     <v-content>
       <keep-alive>
