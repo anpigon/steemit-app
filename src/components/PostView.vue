@@ -156,9 +156,11 @@ export default {
         // # 1. 이미지 URL이 있는 경우 이미지 태그로 변환(정규식 테스트 필요!!!)
         // body = body.replace(/(https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?(^[\n|\r\n])))/ig, '<img src="$1">')
         // body = body.replace(/(^http(s)?:\/\/steemit(dev|stage)?images.com\/.+)/g, '<img src="$1">')
-        body = body.replace(/(https?:\/\/steemit(dev|stage)?images.com(\/([0-9]+x[0-9]+))?\/.+)/g, '<img src="$1">')
-        body = body.replace(/([^\\(|>|'|"|\\/]https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?)/ig, '<img src="$1">')
-        // console.log('image replace:', body)
+        // body = body.replace(/(https?:\/\/steemit(dev|stage)?images.com(\/([0-9]+x[0-9]+))?\/.+)/g, '<img src="$1">')
+        // body = body.replace(/([^\\(|>|'|"|\\/]https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?)/ig, '<img src="$1">')
+        const imageRegex = /[^\\(|>|'|"|\\/](https?:\/\/(?:[-a-zA-Z0-9._]*[-a-zA-Z0-9])(?::\d{2,5})?(?:[/?#](?:[^\s"'<>\][()]*[^\s"'<>\][().,])?(?:(?:\.(?:tiff?|jpe?g|gif|png|svg|ico)|ipfs\/[a-z\d]{40,}))))/gi
+        body = body.replace(imageRegex, `<img src="$1"/>`)
+        // console.log(body)
 
         // # 2. 유튜브 URL이 있는 경우 동영상 태그로 치환
         body = body.replace(/https:\/\/www.youtube.com\/watch\?[a-zA-Z]=([a-zA-Z0-9]*)/gi, '<div class="videoWrapper"><iframe src="https://www.youtube.com/embed/$1"></iframe></div></p>')
