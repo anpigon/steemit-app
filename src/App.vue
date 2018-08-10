@@ -28,7 +28,9 @@
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>Steemlog</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn flat small>로그인</v-btn>
+      <v-toolbar-items>
+        <v-btn flat small to='/login'>로그인</v-btn>
+      </v-toolbar-items>
     </v-toolbar>
     <v-content>
       <keep-alive>
