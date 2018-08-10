@@ -6,7 +6,7 @@
           </v-card>
       </v-flex>  -->
       <v-flex xs12 md9 offset-md3>
-        <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="10">
+        <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="30">
           <v-layout row wrap>
             <v-flex xs12 md6 xl4 v-for="d in discussions" :key="d.id">
               <v-card>
@@ -50,7 +50,7 @@
               </v-card>
             </v-flex><!-- // v-for END -->
           </v-layout>
-          <div class="text-xs-center mt-3 mb-3" v-show="next.exist">
+          <div class="text-xs-center mt-3 mb-1" v-show="next.exist">
             <v-progress-circular
               indeterminate
               color="primary"
