@@ -162,6 +162,7 @@ export default {
   },
   activated () {
     this.busy = false
+    console.log(this.$store.state.auth.username)
   }
 }
 </script>

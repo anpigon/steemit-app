@@ -28,7 +28,14 @@
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>Steemlog</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn flat small>로그인</v-btn>
+      <v-toolbar-items v-if='!username'>
+        <v-btn flat small to='/login'>로그인</v-btn>
+      </v-toolbar-items>
+      <v-btn v-if='username' icon>
+        <v-avatar color="white" size='36'>
+          <img :src="'https://steemitimages.com/u/' + username + '/avatar'" alt="avatar" onerror="this.src='https://steemitimages.com/u/monawoo/avatar/small'">
+        </v-avatar>
+      </v-btn>
     </v-toolbar>
     <v-content>
       <keep-alive>
@@ -42,14 +49,21 @@
 </template>
 
 <script>
-  export default {
-    data: () => ({
-      drawer: false
-    }),
-    props: {
-      source: String
-    }
+import { mapState } from 'vuex'
+
+export default {
+  data: () => ({
+    drawer: false
+  }),
+  props: {
+    source: String
+  },
+  computed: {
+    ...mapState('auth', [
+      'username'
+    ])
   }
+}
 </script>
 
 <style>
