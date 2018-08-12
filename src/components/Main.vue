@@ -26,6 +26,7 @@
                   :src="'https://steemitimages.com/640x480/' + d.image"
                   height="200px">
                 </v-card-media>
+                <v-card-media v-if="!d.image" src="https://steemit.com/images/steemit.png" height="200px"></v-card-media>
                 <v-list three-line>
                   <v-list-tile :to="'/@' + d.author + '/' + d.permlink">
                     <v-list-tile-content>
