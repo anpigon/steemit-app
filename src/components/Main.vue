@@ -1,11 +1,56 @@
 <template>
-  <v-container fill-height fluid grid-list-md>
-    <v-layout>
-      <!-- <v-flex xs12 md3>
-          <v-card><v-card-title>TEST</v-card-title>
-          </v-card>
-      </v-flex>  -->
-      <v-flex xs12 md9 offset-md3>
+  <v-container fill-height grid-list-md>
+    <v-layout row wrap>
+      <v-flex xs12 md3>
+        <v-card>
+          <v-card-media>
+            <img src='https://steemitimages.com/0x100/https://steemitimages.com/DQmbbsXGpDwSwwxoUXurjFUvxcm2vFVYpVJG53ZNKPVmUDR/0b1e69ca63199afcb690ecf29ad6bcb9.jpg'>
+          </v-card-media>
+          <v-avatar
+            style='margin: -120px 0px 0px 15px;'
+            size="64">
+            <img src='https://steemitimages.com/u/anpigon/avatar' style='border: 2px solid #fff'>
+            </v-avatar>
+          <v-card-title class='pt-0'>
+            <div style='position: absolute;top:26px;left: 95px;color:white;line-height: 160%;font-weight:bold;text-shadow: 0 0 4px rgba(0,0,0,.8);'>
+              <span style='font-size: 32px;'>안피곤</span>
+              <span>(45)</span>
+              <div>@anpigon</div>
+            </div>
+            <div>수면의 과학</div>
+          </v-card-title>
+          <v-card-text class='pt-0'>
+            <div><v-icon small>power</v-icon> 보팅 파워: 70%</div>
+            <div><v-icon label small>attach_money</v-icon> 보팅 금액: $0.001</div>
+          </v-card-text>
+        </v-card>
+        <v-card class='mt-1'>
+          <v-card-title primary-title>
+            <h3 class="mb-0" style='font-size: 18px;font-weight: bold;'>인기있는 태그</h3>
+          </v-card-title>
+          <v-card-text class='pt-0'>
+            <ul class='trends' style='list-style: none;margin:0;padding:0;font-weight: bold;font-size: 1.1em'>
+              <li style='line-height: 17px;margin-bottom: 10px;'><a href="#" class='trend-name'>life</a></li>
+              <li><a href="#" class='trend-name'>photography</a></li>
+              <li><a href="#" class='trend-name'>kr</a></li>
+              <li><a href="#" class='trend-name'>steemit</a></li>
+              <li><a href="#" class='trend-name'>art</a></li>
+              <li><a href="#" class='trend-name'>bitcoin</a></li>
+              <li><a href="#" class='trend-name'>introduceyourself</a></li>
+              <li><a href="#" class='trend-name'>spanish</a></li>
+              <li><a href="#" class='trend-name'>travel</a></li>
+              <li><a href="#" class='trend-name'>cryptocurrency</a></li>
+              <li><a href="#" class='trend-name'>food</a></li>
+              <li><a href="#" class='trend-name'>steem</a></li>
+              <li><a href="#" class='trend-name'>busy</a></li>
+              <li><a href="#" class='trend-name'>blog</a></li>
+              <li><a href="#" class='trend-name'>funny</a></li>
+            </ul>
+            <a href='#' style='font-weight: bold;color: #99aab5;display: inline-block;margin: 12px 0;font-size: 1.2em;font-weight: 500;'>더 보기</a>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+      <v-flex xs12 md9>
         <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="30">
           <v-layout row wrap>
             <v-flex xs12 md6 xl4 v-for="d in discussions" :key="d.id">
