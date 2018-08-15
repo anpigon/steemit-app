@@ -2,29 +2,10 @@
   <v-container fill-height grid-list-md>
     <v-layout row wrap>
       <v-flex xs12 md3>
-        <v-card>
-          <v-card-media>
-            <img src='https://steemitimages.com/0x100/https://steemitimages.com/DQmbbsXGpDwSwwxoUXurjFUvxcm2vFVYpVJG53ZNKPVmUDR/0b1e69ca63199afcb690ecf29ad6bcb9.jpg'>
-          </v-card-media>
-          <v-avatar
-            style='margin: -120px 0px 0px 15px;'
-            size="64">
-            <img src='https://steemitimages.com/u/anpigon/avatar' style='border: 2px solid #fff'>
-            </v-avatar>
-          <v-card-title class='pt-0'>
-            <div style='position: absolute;top:26px;left: 95px;color:white;line-height: 160%;font-weight:bold;text-shadow: 0 0 4px rgba(0,0,0,.8);'>
-              <span style='font-size: 32px;'>안피곤</span>
-              <span>(45)</span>
-              <div>@anpigon</div>
-            </div>
-            <div>수면의 과학</div>
-          </v-card-title>
-          <v-card-text class='pt-0'>
-            <div><v-icon small>power</v-icon> 보팅 파워: 70%</div>
-            <div><v-icon label small>attach_money</v-icon> 보팅 금액: $0.001</div>
-          </v-card-text>
-        </v-card>
-        <v-card class='mt-1'>
+        
+        <UserProfilePanel></UserProfilePanel>
+
+        <v-card class='mt-1' v-if="false">
           <v-card-title primary-title>
             <h3 class="mb-0" style='font-size: 18px;font-weight: bold;'>인기있는 태그</h3>
           </v-card-title>
@@ -124,6 +105,9 @@ export default {
       author: null
     }
   }),
+  components: {
+    UserProfilePanel: () => import('@/components/panels/UserProfilePanel')
+  },
   directives: {
     infiniteScroll
   },
@@ -202,13 +186,14 @@ export default {
   },
   created () {
     // this.getDiscussions()
+    // console.log('isLogin', this.isLogin)
   },
   deactivated () {
     this.busy = true
   },
   activated () {
     this.busy = false
-    console.log(this.$store.state.auth.username)
+    // console.log('username', this.$store.state.auth.username)
   }
 }
 </script>
