@@ -3,7 +3,7 @@
     <v-layout row wrap>
       <v-flex xs12 md3>
         
-        <UserProfilePanel></UserProfilePanel>
+        <component :is='UserProfilePanel'></component>
 
         <v-card class='mt-1' v-if="false">
           <v-card-title primary-title>
@@ -92,6 +92,7 @@
 import steem from 'steem' // 스팀잇 라이브러리 임포트
 import Remarkable from 'remarkable'
 import infiniteScroll from 'vue-infinite-scroll'
+// import { mapGetters } from 'vuex'
 
 const md = new Remarkable({ html: true, linkify: true })
 
@@ -105,9 +106,26 @@ export default {
       author: null
     }
   }),
-  components: {
-    UserProfilePanel: () => import('@/components/panels/UserProfilePanel')
+  computed: {
+    UserProfilePanel () {
+      console.log('isLogin:', this.$store.getters['auth/isLogin'])
+      if (this.$store.getters['auth/isLogin']) {
+        return () => import('@/components/panels/UserProfilePanel')
+      } else {
+        return () => ''
+      }
+    }
   },
+  // components: {
+  //   UserProfilePanel: () => {
+  //     console.log('this.isLogin:', this.isLogin)
+  //     if (this.isLogin) {
+  //       return import('@/components/panels/UserProfilePanel')
+  //     } else {
+  //       return ''
+  //     }
+  //   }
+  // },
   directives: {
     infiniteScroll
   },
@@ -197,7 +215,7 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
 .text-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -214,5 +232,10 @@ export default {
 .bottom {
   min-height: 10px;
   display: block;
+}
+@media only screen and (max-width: 1263px) {
+  .v-content__wrap >  .container.fill-height {
+    max-width: 100%;
+  }
 }
 </style>

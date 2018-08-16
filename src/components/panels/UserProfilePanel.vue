@@ -12,27 +12,38 @@
         <span>({{ account.reputation }})</span>
         <div>@{{ username }}</div>
       </div>
-      <div>수면의 과학</div>
+      <div class='hidden-sm-and-down'>수면의 과학</div>
     </v-card-title>
     <v-card-text class='pt-0'>
-      <div><v-icon small>power</v-icon> 보팅 파워: {{ this.votePower.toFixed(3) }}%</div>
+      <div><v-icon small>power</v-icon> 보팅 파워: {{ this.votePower.toFixed(2) }}%</div>
       <div><v-icon label small>attach_money</v-icon> 보팅 금액: ${{ upvoteValue.toFixed(3) }}</div>
     </v-card-text>
   </v-card>
 </template>
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   name: 'UserProfilePanel',
   computed: {
-    ...mapGetters('auth', ['isLogin']),
-    ...mapState('auth', ['username', 'account']),
+    ...mapState('auth', ['username']),
     ...mapState({
       global: state => state.global
     }),
-    totalVestingShares () {
-      return this.account.vestingShares + this.account.delegatedVestingShares + this.account.receivedVestingShares
+    ...mapState({
+      account: state => state.account
+    }),
+    vestingSteem () {
+      return this.formatterVestingSteem(this.account.vestingShares)
+    },
+    delegatedVestingSteem () {
+      return this.formatterVestingSteem(this.account.delegatedVestingShares)
+    },
+    receivedVestingSteem () {
+      return this.formatterVestingSteem(this.account.receivedVestingShares)
+    },
+    totalSteemPower () {
+      return this.vestingSteem + this.delegatedVestingSteem + this.receivedVestingSteem
     },
     votePower () {
       const elapsedSeconds = (new Date() - new Date(this.account.lastVoteTime + 'Z')) / 1000 // 마지막 보팅 후 경과 시간
@@ -44,20 +55,27 @@ export default {
       return (10000 - this.votePower) * (5 * 60 * 60 * 24) / (60 * 60 * 10000)
     },
     upvoteValue () {
-      // 보팅파워 * 보팅가중치에 따른 비율 계산
-      let rate = parseInt((this.votePower * 100) * 1e4 / 1e4)
-      rate = parseInt((rate + 49) / 50) * 100 // 변환식
-      // 나의 보팅 가치 계산
-      const upvoteValue = (this.global.otalVestingShares / (this.global.totalVestingFundSteem / this.global.totalVestingShares) * rate * (this.global.rewardBalance / this.global.recentClaims) * this.global.steemPrice)
+      const rate = parseInt((this.votePower * 100 + 49) / 50) * 100
+      console.log('rate:', rate)
+      let upvoteValue = this.totalSteemPower / (this.global.totalVestingFundSteem / this.global.totalVestingShares) * rate * (this.global.rewardBalance / this.global.recentClaims)
+      console.log('upvoteValue1:', upvoteValue)
+      upvoteValue = upvoteValue * this.global.price
+      console.log('upvoteValue2:', upvoteValue)
       return upvoteValue || 0
     }
   },
+  // beforeMount () {
   created () {
-    // console.log(this.$store)
-    if (this.isLogin) {
-      // console.log('getAccounts')
-      this.$store.dispatch('global/loadGlobalProperties')
-      this.$store.dispatch('auth/loadAccount')
+    console.log('getAccounts')
+    this.$store.dispatch('global/loadGlobalProperties')
+    this.$store.dispatch('account/loadAccount', this.username)
+  },
+  mounted () {
+    console.log('account', this.account)
+  },
+  methods: {
+    formatterVestingSteem (vestingShares) {
+      return this.global.totalVestingFundSteem * (vestingShares / this.global.totalVestingShares)
     }
   }
 }
@@ -80,5 +98,10 @@ export default {
 }
 .username > span:first-child {
   font-size: 32px;
+}
+@media only screen and (max-width: 959px) {
+  .v-card__title {
+    padding: 0;
+  }
 }
 </style>

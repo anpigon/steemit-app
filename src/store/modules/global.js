@@ -32,9 +32,10 @@ const actions = {
 }
 
 const mutations = {
-  setGlobalProperties (state, { totalVestingFundSteem, totalVestingShares }) {
-    state.totalVestingFundSteem = totalVestingFundSteem
-    state.totalVestingShares = totalVestingShares
+  setGlobalProperties (state, global) {
+    for (const key in global) {
+      state[key] = global[key]
+    }
   }
 }
 
