@@ -62,7 +62,7 @@
                   </v-list-tile>
                 </v-list>
                 <v-card-title class='pt-0'>
-                  좋아요 {{ d.net_votes }}명 · 댓글 {{ d.children }}명
+                  <router-link :to="'/@' + d.author + '/' + d.permlink + '/vote'" class='mr-1'>좋아요 {{ d.net_votes }}명</router-link> · 댓글 {{ d.children }}명
                   <v-spacer></v-spacer>
                   <strong>${{ d.payout_value }}</strong>
                 </v-card-title>
@@ -205,6 +205,7 @@ export default {
   created () {
     // this.getDiscussions()
     // console.log('isLogin', this.isLogin)
+    // this.$store.dispatch('global/loadGlobalProperties')
   },
   deactivated () {
     this.busy = true
