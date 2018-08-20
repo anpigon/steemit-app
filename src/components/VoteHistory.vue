@@ -5,12 +5,52 @@
       <v-layout justify-start column>
         <v-flex>
           <v-card>
-            <v-card-title>
+            <v-card-title class="title pb-0">
               {{ title }}
             </v-card-title>
+            <v-layout>
+              <v-flex xs7 class='pr-0'>
+                <v-list class='pt-0'>
+                  <v-list-tile avatar>
+                    <v-list-tile-avatar>
+                    <img :src="'https://steemitimages.com/u/' + author + '/avatar/small'" alt="avatar" onerror="this.src='https://steemitimages.com/u/monawoo/avatar/small'">
+                    </v-list-tile-avatar>
+                    <v-list-tile-content>
+                      <v-list-tile-title>{{ author }} <span class='reputation'>({{author_reputation | filterReputation}})</span></v-list-tile-title>
+                      <v-list-tile-sub-title>{{created | filterCreated}} · {{category}}</v-list-tile-sub-title>
+                    </v-list-tile-content>
+                  </v-list-tile>
+                </v-list>
+              </v-flex>
+              <v-flex xs5 text-xs-right class='pr-4 pt-3'>
+                <div>좋아요 {{ net_votes }} · 댓글 {{ children }}</div>
+                <v-tooltip bottom>
+                  <strong slot="activator">${{ payoutValue }}</strong>
+                  <div v-if="pending_payout_value > 0"> 예상 보상금액: ${{ payoutValue }}<br>
+                  <!-- (0.00 SBD, 0.25 STEEM, 0.25 SP)<br> -->
+                  {{ payoutTime }} 후</div>
+                  <div v-if="pending_payout_value === 0">
+                     지급된 보상 ${{ payoutValue }}<br>
+                    - 저자 ${{ total_payout_value }}<br>
+                    - 큐레이터 ${{ curator_payout_value }}
+                  </div>
+                </v-tooltip>
+                <!--
+                   예상 보상금액: $0.45
+                  (0.00 SBD, 0.25 STEEM, 0.25 SP)
+                  7일 후
+                  -->
+                <!--
+                  지급된 보상 $2.16
+                  - 저자 $1.64
+                  - 큐레이터 $0.52
+                  -->
+              </v-flex>
+            </v-layout>
           </v-card>
         </v-flex>
         <v-flex>
+          <v-subheader class='pl-0 subheading'>보팅<small>({{ net_votes }})</small></v-subheader>
           <v-data-table
             :headers="headers"
             :items="votes"
@@ -19,12 +59,12 @@
             :loading="loading"
             class="elevation-1">
             <template slot="items" slot-scope="props">
-              <td>{{ props.item.voter }}</td>
-              <td>{{ props.item.reputation }}</td>
+              <td>{{ props.item.voter }} <span class='reputation'>({{ props.item.reputation }})</span></td>
+              <!-- <td>{{ props.item.reputation }}</td> -->
               <td class="text-xs-right">${{ props.item.value }}</td>
               <td class="text-xs-right">{{ props.item.weight }}%</td>
               <td class="text-xs-right">{{ props.item.curation }}</td>
-              <td class="text-xs-right">{{ props.item.time }}</td>
+              <td class="text-xs-right">{{ props.item.time | formatTime }}</td>
             </template>
           </v-data-table>
         </v-flex>
@@ -50,14 +90,14 @@ export default {
           text: '사용자',
           align: 'left',
           sortable: true,
-          value: 'voter'
-        },
-        {
-          text: '명성',
-          align: 'left',
-          sortable: true,
           value: 'reputation'
         },
+        // {
+        //   text: '명성',
+        //   align: 'left',
+        //   sortable: true,
+        //   value: 'reputation'
+        // },
         {
           text: '보팅금액',
           align: 'right',
@@ -83,40 +123,60 @@ export default {
           value: 'time'
         }
       ],
-      activeVotes: [],
-      totalVoteWeight: 0,
-      pendingPayoutValue: 0,
-      totalPayoutValue: 0,
-      curatorPayoutValue: 0,
-      title: ''
+      active_votes: [],
+      total_vote_weight: 0,
+      pending_payout_value: 0,
+      total_payout_value: 0,
+      curator_payout_value: 0,
+      title: '',
+      author: '',
+      author_reputation: 0,
+      created: '',
+      category: '',
+      net_votes: 0,
+      children: 0,
+      cashout_time: ''
     }
   },
-  // filters: {
-  //   formatDate (v) {
-  //     return v
-  //   }
-  // },
+  filters: {
+    formatTime: (v) => {
+      const d = new Date(v)
+      return `${d.getFullYear()}-${('0' + (d.getMonth() + 1)).slice(-2)}-${('0' + d.getDate()).slice(-2)} ${('0' + d.getHours()).slice(-2)}:${('0' + d.getMinutes()).slice(-2)}`
+    }
+  },
   computed: {
-    totalPayout () {
-      return this.pendingPayoutValue + this.totalPayoutValue + this.curatorPayoutValue
+    payoutTime () {
+      const time = (new Date(this.cashout_time) - new Date()) / 1000
+      if (time > 86400) {
+        return Math.round(time / 86400) + '일'
+      } else if (time > 3600) {
+        return Math.round(time / 3600) + '시간'
+      } else if (time > 60) {
+        return Math.round(time / 60) + '분'
+      } else {
+        return Math.round(time) + '초'
+      }
+    },
+    payoutValue () {
+      return this.pending_payout_value + this.total_payout_value + this.curator_payout_value
     },
     votes () {
       let totalRshares = 0
       let totalWeight = 0
-      this.activeVotes.forEach(e => {
+      this.active_votes.forEach(e => {
         totalRshares += parseFloat(e.rshares) // 해당 포스트에 보팅된 총 리워드 계산
         totalWeight += parseFloat(e.weight) // 해당 포스트에 보팅된 총 가중치 계산
       })
-      // console.log('totalVoteWeight: ' + this.totalVoteWeight, 'totalWeight: ' + totalWeight)
-      return this.activeVotes.map(e => {
+      // console.log('total_vote_weight: ' + this.total_vote_weight, 'totalWeight: ' + totalWeight)
+      return this.active_votes.map(e => {
         let value, curation
-        if (this.pendingPayoutValue > 0) { // 페이아웃 이전
+        if (this.pending_payout_value > 0) { // 페이아웃 이전
           value = (e.rshares * (this.global.rewardBalance / this.global.recentClaims) * this.global.price) // 업보팅한 금액
-          curation = (e.weight / this.totalVoteWeight * this.pendingPayoutValue * 0.25 / this.global.price).toFixed(3) + ' SP' // 받을 큐레이션 보상
+          curation = (e.weight / this.total_vote_weight * this.pending_payout_value * 0.25 / this.global.price).toFixed(3) + ' SP' // 받을 큐레이션 보상
         } else { // 페이아웃 이후
-          const o = this.totalPayoutValue / (this.totalPayoutValue + this.curatorPayoutValue)
-          value = e.rshares / totalRshares * parseFloat(this.totalPayoutValue / o) // 업보팅한 금액
-          curation = '$' + (e.weight / totalWeight * this.curatorPayoutValue).toFixed(3) // 받은 큐레이션 보상
+          const o = this.total_payout_value / (this.total_payout_value + this.curator_payout_value)
+          value = e.rshares / totalRshares * parseFloat(this.total_payout_value / o) // 업보팅한 금액
+          curation = '$' + (e.weight / totalWeight * this.curator_payout_value).toFixed(3) // 받은 큐레이션 보상
         }
         return {
           voter: e.voter,
@@ -140,11 +200,18 @@ export default {
       .then(n => {
         console.log(n)
         this.title = n.title
-        this.totalVoteWeight = n.total_vote_weight
-        this.pendingPayoutValue = parseFloat(n.pending_payout_value.split(' ')[0]) // 지급예정 보장(저자+큐레이션)
-        this.totalPayoutValue = parseFloat(n.total_payout_value.split(' ')[0]) // 지급된 보상
-        this.curatorPayoutValue = parseFloat(n.curator_payout_value.split(' ')[0]) // 지급된 큐레이션 보상
-        this.activeVotes = n.active_votes
+        this.total_vote_weight = n.total_vote_weight
+        this.pending_payout_value = parseFloat(n.pending_payout_value.split(' ')[0]) // 지급예정 보장(저자+큐레이션)
+        this.total_payout_value = parseFloat(n.total_payout_value.split(' ')[0]) // 지급된 보상
+        this.curator_payout_value = parseFloat(n.curator_payout_value.split(' ')[0]) // 지급된 큐레이션 보상
+        this.active_votes = n.active_votes
+        this.author = n.author
+        this.author_reputation = n.author_reputation
+        this.created = n.created
+        this.category = n.category
+        this.net_votes = n.net_votes
+        this.children = n.children
+        this.cashout_time = n.cashout_time
       })
       .catch(e => console.log(e))
       .finally(() => (this.loading = false))

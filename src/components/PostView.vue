@@ -27,7 +27,18 @@
               </v-flex>
               <v-flex xs5 text-xs-right class='pr-4 pt-3'>
                 <div>좋아요 {{ net_votes }} · 댓글 {{ children }}</div>
-                <strong>${{ payout_value }}</strong>
+                <!-- <strong>${{ payout_value }}</strong> -->
+                <v-tooltip bottom>
+                  <strong slot="activator">${{ payoutValue }}</strong>
+                  <div v-if="pending_payout_value > 0"> 예상 보상금액: ${{ payoutValue }}<br>
+                  <!-- (0.00 SBD, 0.25 STEEM, 0.25 SP)<br> -->
+                  {{ payoutTime }} 후</div>
+                  <div v-if="pending_payout_value === 0">
+                     지급된 보상 ${{ payoutValue }}<br>
+                    - 저자 ${{ total_payout_value }}<br>
+                    - 큐레이터 ${{ curator_payout_value }}
+                  </div>
+                </v-tooltip>
               </v-flex>
             </v-layout>
             <v-divider></v-divider>
@@ -116,6 +127,7 @@ export default {
       total_payout_value: 0,
       curator_payout_value: 0,
       pending_payout_value: 0,
+      cashout_time: '',
       tags: [],
       comments: [],
       loadedComments: false
@@ -127,8 +139,20 @@ export default {
   // computed 기능 구현
   computed: {
     // payout_value 금액 계산
-    payout_value () {
-      return (this.total_payout_value + this.curator_payout_value + this.pending_payout_value).toFixed(2)
+    payoutValue () {
+      return (this.total_payout_value + this.curator_payout_value + this.pending_payout_value).toFixed(3)
+    },
+    payoutTime () {
+      const time = (new Date(this.cashout_time) - new Date()) / 1000
+      if (time > 86400) {
+        return Math.round(time / 86400) + '일'
+      } else if (time > 3600) {
+        return Math.round(time / 3600) + '시간'
+      } else if (time > 60) {
+        return Math.round(time / 60) + '분'
+      } else {
+        return Math.round(time) + '초'
+      }
     },
     commentsOffsetTop () {
       // const { offsetTop, offsetHeight } = this.$refs.comments.$el
@@ -186,6 +210,7 @@ export default {
         this.total_payout_value = parseFloat(r.total_payout_value.split(' ')[0])
         this.curator_payout_value = parseFloat(r.curator_payout_value.split(' ')[0])
         this.pending_payout_value = parseFloat(r.pending_payout_value.split(' ')[0])
+        this.cashout_time = r.cashout_time
         this.tags = metadata.tags
 
         this.loadedComments = (r.children === 0)
