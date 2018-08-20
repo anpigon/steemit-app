@@ -29,7 +29,9 @@
                         :rules="passwordRules"
                         persistent-hint
                         hint="로그인에는 항상 포스팅키를 사용하시기를 권장합니다."
+                        @keyup.enter="login"
                         ></v-text-field>
+                        <v-switch  label="자동 로그인" v-model="autoLogin" class='pb-0'></v-switch>
                     </v-form>
                   </v-card-text>
                   <v-card-actions class='pt-0'>
@@ -61,7 +63,8 @@ export default {
       passwordRules: [
         v => (!v || steem.auth.isWif(v)) || 'Password is invalid'
       ],
-      busy: false
+      busy: false,
+      autoLogin: !!window.localStorage.getItem('autoLogin')
     }
   },
   deactivated () {
@@ -79,6 +82,16 @@ export default {
               username: this.username,
               password: this.password
             })
+            console.log('this.autoLogin:', this.autoLogin, this.autoLogin === true)
+            if (this.autoLogin) {
+              window.localStorage.setItem('autoLogin', this.autoLogin)
+              window.localStorage.setItem('username', this.username)
+              window.localStorage.setItem('password', this.password)
+            } else {
+              window.localStorage.removeItem('autoLogin')
+              window.localStorage.removeItem('username')
+              window.localStorage.removeItem('password')
+            }
             // this.$router.replace(this.$route.query.redirect || '/')
             this.$router.go(-1)
           })
