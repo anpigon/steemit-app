@@ -20,6 +20,12 @@ export default new Router({
       component: PostView
     },
     {
+      path: '/@:author/:permlink/vote',
+      alias: '/category/@:author/:permlink/vote',
+      name: 'VoteHistory',
+      component: () => import('@/components/VoteHistory')
+    },
+    {
       path: '/login',
       name: 'Login',
       component: Login
