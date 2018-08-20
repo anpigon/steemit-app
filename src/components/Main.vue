@@ -86,6 +86,35 @@
         </div>
       </v-flex>
     </v-layout>
+    <v-card height="200px">
+      <v-bottom-nav
+        :active.sync="bottomNav"
+        :color="color"
+        :value="true"
+        absolute
+        shift
+      >
+        <v-btn dark>
+          <span>Video</span>
+          <v-icon>ondemand_video</v-icon>
+        </v-btn>
+
+        <v-btn dark>
+          <span>Music</span>
+          <v-icon>music_note</v-icon>
+        </v-btn>
+
+        <v-btn dark>
+          <span>Book</span>
+          <v-icon>book</v-icon>
+        </v-btn>
+
+        <v-btn dark>
+          <span>Image</span>
+          <v-icon>image</v-icon>
+        </v-btn>
+      </v-bottom-nav>
+    </v-card>
   </v-container>
 </template>
 <script>
@@ -142,6 +171,12 @@ export default {
       // scrollingElement.animate({ scrollTop: scrollingElement.scrollHeight }, 'slow')
     },
     getDiscussions () {
+      // steem.api.getDiscussionsByBlog(
+      // await steem.api.getDiscussionsByFeedAsync({tag:'anpigon', limit: 11})
+      // steem.api.getDiscussionsByHot(
+      // steem.api.getDiscussionsByPayout(
+      // steem.api.getDiscussionsByCashout(
+      // steem.api.getDiscussionsByTrending(
       let query = {
         tag: 'kr',
         limit: 11,
