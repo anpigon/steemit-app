@@ -1,6 +1,6 @@
 const state = {
-  username: window.sessionStorage.getItem('username') || '',
-  password: window.sessionStorage.getItem('password') || ''
+  username: window.localStorage.getItem('username') || window.sessionStorage.getItem('username') || '',
+  password: window.localStorage.getItem('password') || window.sessionStorage.getItem('password') || ''
 }
 
 const getters = {
