@@ -26,7 +26,11 @@
                 </v-list>
               </v-flex>
               <v-flex xs5 text-xs-right class='pr-4 pt-3'>
-                <div>좋아요 {{ net_votes }} · 댓글 {{ children }}</div>
+                <div>
+                  <router-link :to="'/@' + author + '/' + permlink + '/vote'" class='mr-1'>좋아요 {{ net_votes }}</router-link>
+                  <!-- <a @click="voteDialog === true">좋아요 {{ net_votes }}</a> -->
+                   · 댓글 {{ children }}
+                </div>
                 <!-- <strong>${{ payout_value }}</strong> -->
                 <v-tooltip bottom>
                   <strong slot="activator">${{ payoutValue }}</strong>
@@ -88,19 +92,12 @@
   </v-layout>
 </v-container>
 </template>
-
 <script>
 import steem from 'steem'
 import Remarkable from 'remarkable'
 import hljs from 'highlight.js'
 import _ from 'lodash'
-// import infiniteScroll from 'vue-infinite-scroll'
-
 import Comments from '@/components/Comments'
-
-// hljs.configure({
-//   tabReplace: '  ' // 2 spaces
-// })
 
 const md = new Remarkable({
   html: true,
@@ -133,10 +130,6 @@ export default {
       loadedComments: false
     }
   },
-  // directives: {
-  //   infiniteScroll
-  // },
-  // computed 기능 구현
   computed: {
     // payout_value 금액 계산
     payoutValue () {
@@ -157,66 +150,33 @@ export default {
     commentsOffsetTop () {
       // const { offsetTop, offsetHeight } = this.$refs.comments.$el
       // return offsetTop + offsetHeight + 60
-      return this.$refs.comments.$el.offsetTop
+      return this.loading ? 99999 : this.$refs.comments.$el.offsetTop
     }
   },
   deactivated () {
+    // console.log(window.location.hash)
+    // if (window.location.hash === '#/') {
     // 해당 컴포넌트가 비활성화 되었을때, 컴포넌트를 메모리에서 제거한다.
-    this.$destroy()
+    // this.$destroy()
+    // }
   },
-  beforeCreate () {
-    const author = this.$route.params.author // path의 author 파람값
-    const permlink = this.$route.params.permlink // path의 permlink 파람값
-    // console.log(`@${author}/${permlink}`)
-
-    steem.api.getContentAsync(author, permlink)
-      .then(r => {
-        console.log(r)
-        const metadata = JSON.parse(r.json_metadata)
-        console.log('metadata:', metadata)
-
-        let body = r.body
-
-        // # 1. 이미지 URL이 있는 경우 이미지 태그로 변환(정규식 테스트 필요!!!)
-        // body = body.replace(/(https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?(^[\n|\r\n])))/ig, '<img src="$1">')
-        // body = body.replace(/(^http(s)?:\/\/steemit(dev|stage)?images.com\/.+)/g, '<img src="$1">')
-        // body = body.replace(/(https?:\/\/steemit(dev|stage)?images.com(\/([0-9]+x[0-9]+))?\/.+)/g, '<img src="$1">')
-        // body = body.replace(/([^\\(|>|'|"|\\/]https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?)/ig, '<img src="$1">')
-        const imageRegex = /[^\\(|>|'|"|\\/](https?:\/\/(?:[-a-zA-Z0-9._]*[-a-zA-Z0-9])(?::\d{2,5})?(?:[/?#](?:[^\s"'<>\][()]*[^\s"'<>\][().,])?(?:(?:\.(?:tiff?|jpe?g|gif|png|svg|ico)|ipfs\/[a-z\d]{40,}))))/gi
-        body = body.replace(imageRegex, `<img src="$1"/>`)
-        // console.log(body)
-
-        // # 2. 유튜브 URL이 있는 경우 동영상 태그로 치환
-        body = body.replace(/https:\/\/www.youtube.com\/watch\?[a-zA-Z]=([a-zA-Z0-9]*)/gi, '<div class="videoWrapper"><iframe src="https://www.youtube.com/embed/$1"></iframe></div></p>')
-        body = body.replace(/https:\/\/youtu.be\/([\w]*)/gi, '<div class="videoWrapper"><iframe src="https://www.youtube.com/embed/$1"></iframe></div></p>')
-
-        // # 3. @유저명 치환
-
-        // # 4. #태그 치환
-
-        // # 9. 마크다운인 경우 HTML 로 변환
-        body = md.render(body)
-        // console.log('md -> html:', body)
-
-        this.permlink = r.permlink
-        this.title = r.title
-        this.body = body
-        this.category = r.category
-        this.children = r.children
-        this.net_votes = r.net_votes
-        this.author = r.author
-        this.created = r.created
-        this.author_reputation = r.author_reputation
-        this.total_payout_value = parseFloat(r.total_payout_value.split(' ')[0])
-        this.curator_payout_value = parseFloat(r.curator_payout_value.split(' ')[0])
-        this.pending_payout_value = parseFloat(r.pending_payout_value.split(' ')[0])
-        this.cashout_time = r.cashout_time
-        this.tags = metadata.tags
-
-        this.loadedComments = (r.children === 0)
-      })
-      .catch(e => console.log(e))
-      .finally(() => (this.loading = false))
+  // beforeRouteEnter (to, from, next) {
+  //   steem.api.getContentAsync(to.params.author, to.params.permlink)
+  //     .then(r => {
+  //       console.log('beforeRouteEnter', r)
+  //       // next(vm => vm.setData(null, r))
+  //     })
+  // },
+  watch: {
+    // 라우트가 변경되면 메소드를 다시 호출됩니다.
+    '$route': 'fetchData'
+  },
+  // beforeCreate () {
+  // const author = this.$route.params.author // path의 author 파람값
+  // const permlink = this.$route.params.permlink // path의 permlink 파람값
+  // // console.log(`@${author}/${permlink}`)
+  created () {
+    this.fetchData()
   },
   updated () {
     Array.prototype.forEach.call(document.querySelectorAll('article pre code'),
@@ -226,6 +186,61 @@ export default {
     this.onScroll() // 스크롤이 없는 화면이 있는 경우
   },
   methods: {
+    fetchData () {
+      const author = this.$route.params.author // path의 author 파람값
+      const permlink = this.$route.params.permlink // path의 permlink 파람값
+      if (!author || !permlink) return
+      // console.log(author, permlink)
+      // console.log('$options', this.$options.data())
+      Object.assign(this.$data, this.$options.data()) // 데이터 초기화
+      steem.api.getContentAsync(author, permlink)
+        .then(r => {
+          // console.log(r)
+          const metadata = JSON.parse(r.json_metadata)
+          // console.log('metadata:', metadata)
+
+          let body = r.body
+          // # 1. 이미지 URL이 있는 경우 이미지 태그로 변환(정규식 테스트 필요!!!)
+          // body = body.replace(/(https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?(^[\n|\r\n])))/ig, '<img src="$1">')
+          // body = body.replace(/(^http(s)?:\/\/steemit(dev|stage)?images.com\/.+)/g, '<img src="$1">')
+          // body = body.replace(/(https?:\/\/steemit(dev|stage)?images.com(\/([0-9]+x[0-9]+))?\/.+)/g, '<img src="$1">')
+          // body = body.replace(/([^\\(|>|'|"|\\/]https?:\/\/.*\.(?:jpe?g|gif|png)(\?.*)?)/ig, '<img src="$1">')
+          body = body.replace(/(https?:\/\/steemit(dev|stage)?images.com(\/([0-9]+x[0-9]+))?\/.*\.(?:jpe?g|gif|png)(\?.*)?)/gi, '<img src="$1">')
+          body = body.replace(/[^\\(|>|'|"|\\/](https?:\/\/(?:[-a-zA-Z0-9._]*[-a-zA-Z0-9])(?::\d{2,5})?(?:[/?#](?:[^\s"'<>\][()]*[^\s"'<>\][().,])?(?:(?:\.(?:tiff?|jpe?g|gif|png|svg|ico)|ipfs\/[a-z\d]{40,}))))/gi, `<img src="$1"/>`)
+          // console.log(body)
+
+          // # 2. 유튜브 URL이 있는 경우 동영상 태그로 치환
+          body = body.replace(/https:\/\/www.youtube.com\/watch\?[a-zA-Z]=([a-zA-Z0-9]*)/gi, '<div class="videoWrapper"><iframe src="https://www.youtube.com/embed/$1"></iframe></div></p>')
+          body = body.replace(/https:\/\/youtu.be\/([\w]*)/gi, '<div class="videoWrapper"><iframe src="https://www.youtube.com/embed/$1"></iframe></div></p>')
+
+          // # 3. @유저명 치환(?)
+
+          // # 4. #태그 치환(?)
+
+          // # 9. 마크다운인 경우 HTML 로 변환
+          body = md.render(body)
+          // console.log('md -> html:', body)
+
+          this.permlink = r.permlink
+          this.title = r.title
+          this.body = body
+          this.category = r.category
+          this.children = r.children
+          this.net_votes = r.net_votes
+          this.author = r.author
+          this.created = r.created
+          this.author_reputation = r.author_reputation
+          this.total_payout_value = parseFloat(r.total_payout_value.split(' ')[0])
+          this.curator_payout_value = parseFloat(r.curator_payout_value.split(' ')[0])
+          this.pending_payout_value = parseFloat(r.pending_payout_value.split(' ')[0])
+          this.cashout_time = r.cashout_time
+          this.tags = metadata.tags
+
+          this.loadedComments = (r.children === 0)
+        })
+        .catch(e => console.log(e))
+        .finally(() => (this.loading = false))
+    },
     onScroll () {
       const windowOffsetTop = window.pageYOffset || document.documentElement.scrollTop
       const windowOffsetBottom = windowOffsetTop + window.innerHeight

@@ -39,9 +39,11 @@
       </v-btn>
     </v-toolbar>
     <v-content>
-      <keep-alive>
-        <router-view></router-view>
-      </keep-alive>
+      <transition name="fade" mode="out-in" appear>
+        <keep-alive>
+          <router-view></router-view>
+        </keep-alive>
+      </transition>
     </v-content>
     <!-- <v-footer color="indigo" app>
       <span class="white--text ml-3"><a href='https://steemit.com/@anpigon' class="white--text">@anpigon</a> &copy; 2018</span>

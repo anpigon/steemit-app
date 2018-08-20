@@ -88,16 +88,10 @@ export default {
       headers: [
         {
           text: '사용자',
-          align: 'left',
+          align: 'center',
           sortable: true,
-          value: 'reputation'
+          value: 'voter'
         },
-        // {
-        //   text: '명성',
-        //   align: 'left',
-        //   sortable: true,
-        //   value: 'reputation'
-        // },
         {
           text: '보팅금액',
           align: 'right',
@@ -172,11 +166,13 @@ export default {
         let value, curation
         if (this.pending_payout_value > 0) { // 페이아웃 이전
           value = (e.rshares * (this.global.rewardBalance / this.global.recentClaims) * this.global.price) // 업보팅한 금액
-          curation = (e.weight / this.total_vote_weight * this.pending_payout_value * 0.25 / this.global.price).toFixed(3) + ' SP' // 받을 큐레이션 보상
+          // console.log(value)
+          curation = '≈' + (e.weight / this.total_vote_weight * this.pending_payout_value * 0.25 / this.global.price).toFixed(3) + ' SP' // 받을 큐레이션 보상
         } else { // 페이아웃 이후
           const o = this.total_payout_value / (this.total_payout_value + this.curator_payout_value)
           value = e.rshares / totalRshares * parseFloat(this.total_payout_value / o) // 업보팅한 금액
-          curation = '$' + (e.weight / totalWeight * this.curator_payout_value).toFixed(3) // 받은 큐레이션 보상
+          curation = (e.weight / totalWeight * this.curator_payout_value).toFixed(3) + ' SBD'// 받은 큐레이션 보상
+          console.log(e.rshares, totalRshares, this.total_payout_value, o)
         }
         return {
           voter: e.voter,
@@ -218,6 +214,16 @@ export default {
   },
   created () {
     this.$store.dispatch('global/loadGlobalProperties')
+  },
+  deactivated () {
+    this.$destroy()
   }
 }
 </script>
+<style>
+@media (max-width: 540px) {
+  table.v-table td, table.v-table th {
+    padding: 0 5px !important;
+  }
+}
+</style>

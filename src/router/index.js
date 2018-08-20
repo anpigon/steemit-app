@@ -15,13 +15,14 @@ export default new Router({
     },
     {
       path: '/@:author/:permlink',
-      alias: '/category/@:author/:permlink',
+      // alias: '/:category/@:author/:permlink',
       name: 'PostView',
-      component: PostView
+      component: PostView,
+      props: true
     },
     {
       path: '/@:author/:permlink/vote',
-      alias: '/category/@:author/:permlink/vote',
+      // alias: '/:category/@:author/:permlink/vote',
       name: 'VoteHistory',
       component: () => import('@/components/VoteHistory')
     },
