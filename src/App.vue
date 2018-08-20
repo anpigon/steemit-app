@@ -3,6 +3,7 @@
     <v-navigation-drawer
       v-model="drawer"
       fixed
+      temporary
       app
     >
       <v-list dense>
@@ -25,7 +26,7 @@
       </v-list>
     </v-navigation-drawer>
     <v-toolbar color="teal accent-4" dark fixed app>
-      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+      <v-toolbar-side-icon @click.stop="drawer = !drawer" class="hidden-md-and-up"></v-toolbar-side-icon>
       <v-toolbar-title>Steemlog</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items v-if='!username'>

@@ -4,6 +4,10 @@ const state = {
 }
 
 const getters = {
+  // isLogin: state => !!state.username,
+  isLogin: state => {
+    return !!state.username
+  }
 }
 
 const actions = {

@@ -19,6 +19,7 @@
                         label="Username"
                         :rules="usernameRules"
                         persistent-hint
+                        @keyup.enter="login"
                         required></v-text-field>             
                       <v-text-field
                         prepend-icon="lock"

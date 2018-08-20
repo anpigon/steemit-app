@@ -1,11 +1,37 @@
 <template>
-  <v-container fill-height fluid grid-list-md>
-    <v-layout>
-      <!-- <v-flex xs12 md3>
-          <v-card><v-card-title>TEST</v-card-title>
-          </v-card>
-      </v-flex>  -->
-      <v-flex xs12 md9 offset-md3>
+  <v-container fill-height grid-list-md>
+    <v-layout row wrap>
+      <v-flex xs12 md3>
+        
+        <component :is='UserProfilePanel'></component>
+
+        <v-card class='mt-1' v-if="false">
+          <v-card-title primary-title>
+            <h3 class="mb-0" style='font-size: 18px;font-weight: bold;'>인기있는 태그</h3>
+          </v-card-title>
+          <v-card-text class='pt-0'>
+            <ul class='trends' style='list-style: none;margin:0;padding:0;font-weight: bold;font-size: 1.1em'>
+              <li style='line-height: 17px;margin-bottom: 10px;'><a href="#" class='trend-name'>life</a></li>
+              <li><a href="#" class='trend-name'>photography</a></li>
+              <li><a href="#" class='trend-name'>kr</a></li>
+              <li><a href="#" class='trend-name'>steemit</a></li>
+              <li><a href="#" class='trend-name'>art</a></li>
+              <li><a href="#" class='trend-name'>bitcoin</a></li>
+              <li><a href="#" class='trend-name'>introduceyourself</a></li>
+              <li><a href="#" class='trend-name'>spanish</a></li>
+              <li><a href="#" class='trend-name'>travel</a></li>
+              <li><a href="#" class='trend-name'>cryptocurrency</a></li>
+              <li><a href="#" class='trend-name'>food</a></li>
+              <li><a href="#" class='trend-name'>steem</a></li>
+              <li><a href="#" class='trend-name'>busy</a></li>
+              <li><a href="#" class='trend-name'>blog</a></li>
+              <li><a href="#" class='trend-name'>funny</a></li>
+            </ul>
+            <a href='#' style='font-weight: bold;color: #99aab5;display: inline-block;margin: 12px 0;font-size: 1.2em;font-weight: 500;'>더 보기</a>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+      <v-flex xs12 md9>
         <div v-infinite-scroll="loadMore" infinite-scroll-disabled="busy" infinite-scroll-distance="30">
           <v-layout row wrap>
             <v-flex xs12 md6 xl4 v-for="d in discussions" :key="d.id">
@@ -66,6 +92,7 @@
 import steem from 'steem' // 스팀잇 라이브러리 임포트
 import Remarkable from 'remarkable'
 import infiniteScroll from 'vue-infinite-scroll'
+// import { mapGetters } from 'vuex'
 
 const md = new Remarkable({ html: true, linkify: true })
 
@@ -79,6 +106,26 @@ export default {
       author: null
     }
   }),
+  computed: {
+    UserProfilePanel () {
+      console.log('isLogin:', this.$store.getters['auth/isLogin'])
+      if (this.$store.getters['auth/isLogin']) {
+        return () => import('@/components/panels/UserProfilePanel')
+      } else {
+        return () => ''
+      }
+    }
+  },
+  // components: {
+  //   UserProfilePanel: () => {
+  //     console.log('this.isLogin:', this.isLogin)
+  //     if (this.isLogin) {
+  //       return import('@/components/panels/UserProfilePanel')
+  //     } else {
+  //       return ''
+  //     }
+  //   }
+  // },
   directives: {
     infiniteScroll
   },
@@ -157,17 +204,18 @@ export default {
   },
   created () {
     // this.getDiscussions()
+    // console.log('isLogin', this.isLogin)
   },
   deactivated () {
     this.busy = true
   },
   activated () {
     this.busy = false
-    console.log(this.$store.state.auth.username)
+    // console.log('username', this.$store.state.auth.username)
   }
 }
 </script>
-<style>
+<style scoped>
 .text-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -184,5 +232,10 @@ export default {
 .bottom {
   min-height: 10px;
   display: block;
+}
+@media only screen and (max-width: 1263px) {
+  .v-content__wrap >  .container.fill-height {
+    max-width: 100%;
+  }
 }
 </style>
