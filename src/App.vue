@@ -6,21 +6,44 @@
       temporary
       app
     >
-      <v-list dense>
-        <v-list-tile @click="">
+      <v-toolbar color="teal accent-4" dark>
+        <v-toolbar-side-icon @click.stop="drawer = false"><v-icon>arrow_back_ios</v-icon></v-toolbar-side-icon>
+        <v-toolbar-title>Steemlog</v-toolbar-title>
+      </v-toolbar>
+      <v-list>
+        <v-list-tile v-if='username' @click="$router.push('/@' + username + '/feed')">
           <v-list-tile-action>
-            <v-icon>home</v-icon>
+            <v-icon>rss_feed</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title>Home</v-list-tile-title>
+            <v-list-tile-title>피드</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile @click="">
+        <v-divider></v-divider>
+        <v-list-tile @click="$router.push('/created')">
           <v-list-tile-action>
-            <v-icon>contact_mail</v-icon>
+            <v-icon>fiber_new</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title>Contact</v-list-tile-title>
+            <v-list-tile-title>최신글</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-divider></v-divider>
+        <v-list-tile @click="$router.push('/hot')">
+          <v-list-tile-action>
+            <v-icon>whatshot</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>인기글</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-divider></v-divider>
+        <v-list-tile @click="$router.push('/trending')">
+          <v-list-tile-action>
+            <v-icon>trending_up</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>대세글</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
