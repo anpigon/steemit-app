@@ -56,11 +56,11 @@ export default {
     },
     upvoteValue () {
       const rate = parseInt((this.votePower * 100 + 49) / 50) * 100
-      console.log('rate:', rate)
+      // console.log('rate:', rate)
       let upvoteValue = this.totalSteemPower / (this.global.totalVestingFundSteem / this.global.totalVestingShares) * rate * (this.global.rewardBalance / this.global.recentClaims)
-      console.log('upvoteValue1:', upvoteValue)
+      // console.log('upvoteValue1:', upvoteValue)
       upvoteValue = upvoteValue * this.global.price
-      console.log('upvoteValue2:', upvoteValue)
+      // console.log('upvoteValue2:', upvoteValue)
       return upvoteValue || 0
     }
   },

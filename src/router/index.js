@@ -8,20 +8,36 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
+    // {
+    //   path: '/',
+    //   alias: ['/trending', '/created', '/hot'],
+    //   name: 'Main',
+    //   component: Main
+    // },
+    // {
+    //   path: '/@:author/feed', redirect: { name: 'Main' }
+    //   // name: 'Main',
+    //   // component: Main
+    // },
     {
       path: '/',
       name: 'Main',
-      component: Main
+      component: Main,
+      children: [
+        { name: 'Feed', path: '/@:author/feed', component: Main, meta: { main: true } },
+        { name: 'Discussions', path: 'default', component: Main, alias: ['/trending', '/created', '/hot'], meta: { main: true } }
+      ]
     },
     {
       path: '/@:author/:permlink',
-      alias: '/category/@:author/:permlink',
+      // alias: '/:category/@:author/:permlink',
       name: 'PostView',
-      component: PostView
+      component: PostView,
+      props: true
     },
     {
       path: '/@:author/:permlink/vote',
-      alias: '/category/@:author/:permlink/vote',
+      // alias: '/:category/@:author/:permlink/vote',
       name: 'VoteHistory',
       component: () => import('@/components/VoteHistory')
     },
