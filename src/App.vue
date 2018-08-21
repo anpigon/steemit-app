@@ -63,6 +63,9 @@
         <v-btn flat small to='/login'>로그인</v-btn>
       </v-toolbar-items>
       <v-btn v-if='username' icon>
+        <v-icon>notifications</v-icon>
+      </v-btn>
+      <v-btn v-if='username' icon>
         <v-avatar color="white" size='36'>
           <img :src="'https://steemitimages.com/u/' + username + '/avatar'" alt="avatar" onerror="this.src='https://steemitimages.com/u/monawoo/avatar/small'">
         </v-avatar>
