@@ -24,8 +24,12 @@ export default new Router({
       name: 'Main',
       component: Main,
       children: [
-        { name: 'Feed', path: '/@:author/feed', component: Main, meta: { main: true } },
-        { name: 'Discussions', path: 'default', component: Main, alias: ['/trending', '/created', '/hot'], meta: { main: true } }
+        // { path: 'default', redirect: { name: 'Created' } },
+        { path: 'default', redirect: { name: 'Created' }, alias: '' },
+        { name: 'Feed', path: '/@:username/feed', component: () => import('@/components/panels/FeedPanel'), meta: { main: true }, props: true },
+        { name: 'Created', path: '/created', component: () => import('@/components/panels/CreatedPanel'), meta: { main: true } },
+        { name: 'Hot', path: '/hot', component: () => import('@/components/panels/HotPanel'), meta: { main: true } },
+        { name: 'Trending', path: '/trending', component: () => import('@/components/panels/TrendingPanel'), meta: { main: true } }
       ]
     },
     {

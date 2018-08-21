@@ -169,8 +169,8 @@ export default {
           // console.log(value)
           curation = '≈' + (e.weight / this.total_vote_weight * this.pending_payout_value * 0.25 / this.global.price).toFixed(3) + ' SP' // 받을 큐레이션 보상
         } else { // 페이아웃 이후
-          const o = this.total_payout_value / (this.total_payout_value + this.curator_payout_value)
-          value = e.rshares / totalRshares * parseFloat(this.total_payout_value / o) // 업보팅한 금액
+          const o = this.total_payout_value ? (this.total_payout_value / (this.total_payout_value + this.curator_payout_value)) : 0
+          value = o ? (e.rshares / totalRshares * parseFloat(this.total_payout_value / o)) : 0 // 업보팅한 금액
           curation = (e.weight / totalWeight * this.curator_payout_value).toFixed(3) + ' SBD'// 받은 큐레이션 보상
           console.log(e.rshares, totalRshares, this.total_payout_value, o)
         }
