@@ -86,7 +86,7 @@
         </div>
       </v-flex>
     </v-layout>
-    <v-card height="200px">
+    <!-- <v-card height="200px">
       <v-bottom-nav
         :active.sync="bottomNav"
         :color="color"
@@ -98,30 +98,27 @@
           <span>Video</span>
           <v-icon>ondemand_video</v-icon>
         </v-btn>
-
         <v-btn dark>
           <span>Music</span>
           <v-icon>music_note</v-icon>
         </v-btn>
-
         <v-btn dark>
           <span>Book</span>
           <v-icon>book</v-icon>
         </v-btn>
-
         <v-btn dark>
           <span>Image</span>
           <v-icon>image</v-icon>
         </v-btn>
       </v-bottom-nav>
-    </v-card>
+    </v-card> -->
   </v-container>
 </template>
 <script>
 import steem from 'steem' // 스팀잇 라이브러리 임포트
 import Remarkable from 'remarkable'
 import infiniteScroll from 'vue-infinite-scroll'
-// import { mapGetters } from 'vuex'
+// import { mapState, mapGetters } from 'vuex'
 
 const md = new Remarkable({ html: true, linkify: true })
 
@@ -136,13 +133,22 @@ export default {
     }
   }),
   computed: {
+    // isLogin () {
+    //   return this.$store.getters['auth/isLogin']
+    // },
+    // ...mapGetters('auth', [ 'isLogin' ]),
+    // ...mapState('auth', [ 'username' ]),
     UserProfilePanel () {
-      console.log('isLogin:', this.$store.getters['auth/isLogin'])
+      // console.log('isLogin:', this.$store.getters['auth/isLogin'])
+      // if (this.isLogin) {
       if (this.$store.getters['auth/isLogin']) {
         return () => import('@/components/panels/UserProfilePanel')
       } else {
         return () => ''
       }
+    },
+    type () {
+      return this.$route
     }
   },
   // components: {
@@ -241,6 +247,7 @@ export default {
     // this.getDiscussions()
     // console.log('isLogin', this.isLogin)
     // this.$store.dispatch('global/loadGlobalProperties')
+    console.log('Main.vue created => type:', this.type)
   },
   deactivated () {
     this.busy = true

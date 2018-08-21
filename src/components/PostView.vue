@@ -169,7 +169,12 @@ export default {
   // },
   watch: {
     // 라우트가 변경되면 메소드를 다시 호출됩니다.
-    '$route': 'fetchData'
+    // '$route': 'fetchData'
+    '$route' (to, from) {
+      // 경로 변경에 반응하여...
+      console.log('to:', to, '\nfrom:', from)
+      this.fetchData()
+    }
   },
   // beforeCreate () {
   // const author = this.$route.params.author // path의 author 파람값
